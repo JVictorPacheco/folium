@@ -1,0 +1,64 @@
+# Folium
+
+Caderno digital na nuvem: páginas com linhas simulando um caderno real,
+formatação rica (cor de caneta, marcação, negrito, listas, títulos), inserção
+de imagens, links e PDFs, com autenticação e sincronização individual.
+
+## Stack
+
+- **Backend**: Python 3.12 + FastAPI + SQLAlchemy 2.0 (async) + Alembic + PostgreSQL
+- **Frontend**: React 18 + TypeScript + Vite + TipTap + TanStack Query
+- **Infra**: Docker + Docker Compose
+
+## Executando com Docker
+
+```bash
+docker compose up --build
+```
+
+- Frontend: http://localhost:5173
+- Backend/API (OpenAPI): http://localhost:8000/docs
+- Healthcheck: http://localhost:8000/health
+
+O backend roda `alembic upgrade head` automaticamente no start.
+
+## Executando sem Docker (desenvolvimento)
+
+Backend (requer Python 3.12 e Postgres):
+
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate        # Windows
+pip install -r requirements.txt
+alembic upgrade head
+uvicorn app.main:app --reload
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Crie um `.env` no frontend com `VITE_API_URL=http://localhost:8000` (ou use o
+`.env.example`).
+
+## Testes
+
+```bash
+# Backend (usa SQLite em memória)
+cd backend && pytest -q
+
+# Frontend
+cd frontend && npm test
+```
+
+## Estrutura de specs (Spec-Driven Development)
+
+- `memory/constitution.md` — princípios do projeto (SOLID, Clean Code, patterns)
+- `specs/001-caderno/spec.md` — especificação da feature (o quê)
+- `specs/001-caderno/plan.md` — plano técnico (como)
+- `specs/001-caderno/tasks.md` — tarefas (execução)
