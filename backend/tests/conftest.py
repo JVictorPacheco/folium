@@ -1,14 +1,19 @@
 import pytest
+from fastapi import Depends
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
+from app.api.deps import get_asset_service
 from app.core.database import Base, get_db
 from app.main import app
+from app.repositories.asset import AssetRepository
+from app.services.asset import AssetService
+from app.storage.local import LocalStorage
 
 
 @pytest.fixture
-async def client():
+async def client(tmp_path):
     engine = create_async_engine(
         "sqlite+aiosqlite://",
         poolclass=StaticPool,
@@ -23,7 +28,13 @@ async def client():
         async with session_factory() as session:
             yield session
 
+    storage = LocalStorage(str(tmp_path / "media"))
+
+    async def override_get_asset_service(db: AsyncSession = Depends(get_db)):
+        return AssetService(AssetRepository(db), storage)
+
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_asset_service] = override_get_asset_service
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac

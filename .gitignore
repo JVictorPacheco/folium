@@ -25,3 +25,6 @@ backend/storage/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Obsidian (config local do vault)
+.obsidian/

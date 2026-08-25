@@ -28,26 +28,22 @@ ponta a ponta** (smoke test manual adiado).
 
 ### Verificado (automatizado)
 
-- ✅ Backend: imagem Docker compilada e **10 testes passando** (`pytest`).
-- ✅ Frontend: `tsc --noEmit` limpo, build Vite OK, **1 teste passando** (`vitest`).
+- ✅ Backend: **17 testes passando** (`pytest`) — inclui upload/validação de assets.
+- ✅ Frontend: **11 testes passando** (`vitest`), `tsc --noEmit` limpo, build Vite OK.
 
 ### NÃO verificado (pendente)
 
 - ❌ **Smoke test manual de ponta a ponta** (cadastro → caderno → editar → recarregar).
 - ❌ `docker compose up --build` completo (backend + postgres + frontend juntos).
 - ❌ Upload real de imagem/PDF pela UI (testado só por unit/API no backend).
-- ❌ Alternância visual claro ↔ escuro (smoke test visual do tema).
+- ❌ Smoke test visual do tema (alternância claro ↔ escuro no navegador).
 
 ### O que falta (próximo passo)
 
-1. **T5.3** — Testes de upload/validação de assets (backend).
-2. **T8.1** — Testes de componentes e hooks no frontend (Vitest + Testing Library;
-   só existe `useDebouncedCallback.test.ts`).
-3. **T8.2** — Smoke test manual do fluxo completo + rodar `docker compose up --build`
-   e validar no navegador.
-4. **T9.5** — Teste do tema + smoke test visual (claro ↔ escuro).
-5. Testes E2E (ex.: Playwright) para o fluxo principal.
-6. Configurar CI (ex.: GitHub Actions) rodando `pytest` + `vitest`.
+1. **T8.2** — Smoke test manual do fluxo completo + rodar `docker compose up --build`
+   e validar no navegador (inclui upload real pela UI e alternância visual de tema).
+2. Testes E2E (ex.: Playwright) para o fluxo principal.
+3. Configurar CI (ex.: GitHub Actions) rodando `pytest` + `vitest`.
 
 ### Fora do MVP (backlog futuro)
 
@@ -56,8 +52,7 @@ ponta a ponta** (smoke test manual adiado).
 
 ## Como continuar (GitFlow)
 
-Branches principais: `main` (produção) e `develop` (integração). **Ambos apontam
-para o mesmo commit (`79aba42`) no momento desta atualização.**
+Branches principais: `main` (produção) e `develop` (integração).
 
 ```bash
 git checkout develop
@@ -81,3 +76,6 @@ Regras rápidas:
 - **2026-08-24** — MVP inicial implementado (backend + frontend), 10 testes backend + 1 frontend.
 - **2026-08-24** — Modo dark, caderno em tela cheia e alinhamento do texto às linhas (commit `79aba42`).
 - **2026-08-25** — GitFlow corrigido (`develop` sincronizado com `main`) e STATUS.md atualizado.
+- **2026-08-25** — Testes pendentes concluídos: `T5.3` (assets), `T8.1` (hooks/componentes) e
+  `T9.5` (tema). 17 testes backend + 11 frontend. `greenlet` adicionado a `requirements.txt`
+  (dependência do SQLAlchemy async).
