@@ -46,6 +46,7 @@ manual adiado).
 
 - Colaboração em tempo real (Yjs/Hocuspocus).
 - Exportar para PDF, histórico de versões, busca, tags, app mobile.
+- Modo dark (tema escuro).
 
 ## Como continuar (GitFlow)
 

@@ -6,6 +6,7 @@ import { api } from "../../api/client";
 import type { Notebook } from "../../api/types";
 import { Button } from "../../components/Button";
 import { Input } from "../../components/Input";
+import ThemeToggle from "../../components/ThemeToggle";
 import { useAuth } from "../auth/AuthContext";
 
 export default function NotebookListPage() {
@@ -46,7 +47,8 @@ export default function NotebookListPage() {
   return (
     <div className="notebooks-page">
       <header className="topbar">
-        <h1>Folium</h1>
+        <h1 className="notebook-title">Folium</h1>
+        <ThemeToggle />
         <Button onClick={logout}>Sair</Button>
       </header>
 

@@ -43,6 +43,8 @@ individual na nuvem.
 7. Como usuário, quero inserir imagens, links e PDFs na página.
 8. Como usuário, quero que minhas edições sejam salvas automaticamente na nuvem, com indicador de status.
 9. Como usuário, quero sair (logout) e ter minha sessão encerrada.
+10. Como usuário, quero alternar entre tema claro e escuro, com o modo escuro
+    parecendo um caderno preto real (fundo preto, linhas brancas, texto claro).
 
 ## Requisitos Funcionais
 
@@ -59,6 +61,9 @@ individual na nuvem.
 - **FR-11**: Linhas de caderno renderizadas via CSS (cor, espaçamento e margem configuráveis).
 - **FR-12**: Isolamento total: toda query filtra por `user_id` do token.
 - **FR-13**: Logout no cliente (descarte do token).
+- **FR-14**: Alternância de tema claro/escuro (modo dark: fundo preto, linhas do
+  caderno brancas e texto claro por padrão), mantendo a possibilidade de o
+  usuário escolher a cor da caneta e a cor da linha.
 
 ## Requisitos Não-Funcionais
 
@@ -85,3 +90,5 @@ individual na nuvem.
 - [ ] Autosave persiste a última edição mesmo com refresh imediato após digitar.
 - [ ] Caderno alterna entre modo de páginas fixas e rolagem contínua.
 - [ ] Linhas de caderno visíveis e configuráveis (cor/espaçamento).
+- [ ] Usuário alterna entre tema claro e escuro; no escuro o fundo é preto, as
+      linhas do caderno são brancas e o texto é claro por padrão.

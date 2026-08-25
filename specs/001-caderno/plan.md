@@ -42,6 +42,7 @@ src/
 ├─ api/            (client HTTP + tipagem das rotas)
 ├─ features/
 │  ├─ auth/        (login, register, AuthContext)
+│  ├─ theme/       (ThemeContext, alternância claro/escuro)
 │  ├─ notebooks/   (lista, criação)
 │  ├─ editor/      (TipTap + toolbar + autosave)
 │  └─ pages/       (navegação, página)
@@ -115,3 +116,20 @@ assets(id PK, user_id FK->users ON DELETE CASCADE,
 - **Sem Hocuspocus no MVP**: sincronização individual via REST; schema JSON pronto para colaboração futura.
 - **JSONB em vez de colunas por campo**: conteúdo livre/estruturado, flexível para migrações de formato.
 - **Vite SPA em vez de Next.js**: app autenticado, sem SEO; build e deploy mais simples.
+
+## Modo Dark (tema escuro)
+
+- **ThemeContext** (React Context) com estado `light` | `dark`, persistido em
+  `localStorage` (`folium_theme`) e aplicado via `data-theme` no `<html>`.
+- **CSS Variables** já usadas em `global.css`; o modo dark é um bloco
+  `[data-theme="dark"]` que sobrescreve as variáveis (`--bg` preto, `--surface`
+  escuro, `--ink` claro, `--paper-bg` e `--paper-line`).
+- **Papel do caderno**: em dark, fundo preto (`--paper-bg`) e linhas brancas
+  (`--paper-line`). A cor de linha customizada por caderno (`line_color` no
+  `PATCH /notebooks/{id}`) sobrescreve o padrão do tema.
+- **Cor da caneta**: já existe via TipTap (`setColor`); texto sem cor explícita
+  herda `--ink`, então no dark o texto padrão fica claro.
+- **Toggle** de tema exposto no topbar (lista de cadernos e editor).
+- **Cor da linha**: input de cor no editor que faz `PATCH line_color`. O valor
+  default `#9db3c8` é tratado como "auto" (segue o tema); valores customizados
+  valem nos dois temas.

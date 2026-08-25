@@ -8,10 +8,12 @@ import { api } from "../../api/client";
 import type { Notebook, Page } from "../../api/types";
 import { useAutosave, type AutosaveStatus } from "../../hooks/useAutosave";
 import { Button } from "../../components/Button";
+import ThemeToggle from "../../components/ThemeToggle";
 import { editorExtensions } from "./extensions";
 import Toolbar from "./Toolbar";
 
 const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
+const DEFAULT_LINE_COLOR = "#9db3c8";
 
 const STATUS_LABEL: Record<AutosaveStatus, string> = {
   saved: "Salvo",
@@ -94,6 +96,12 @@ export default function EditorPage() {
     },
   });
 
+  const setLineColor = useMutation({
+    mutationFn: (color: string) =>
+      api.patch<Notebook>(`/api/v1/notebooks/${notebookId}`, { line_color: color }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["notebook", notebookId] }),
+  });
+
   function selectPage(pageId: number) {
     if (pageId === activeId) return;
     void flush();
@@ -106,10 +114,13 @@ export default function EditorPage() {
   }
 
   const lineSpacing = notebook?.line_spacing ?? 28;
-  const lineColor = notebook?.line_color ?? "#9db3c8";
+  const customLineColor =
+    notebook?.line_color && notebook.line_color.toLowerCase() !== DEFAULT_LINE_COLOR
+      ? notebook.line_color
+      : undefined;
   const paperStyle = {
     "--line-spacing": `${lineSpacing}px`,
-    "--line-color": lineColor,
+    ...(customLineColor ? { "--line-color": customLineColor } : {}),
   } as CSSProperties;
 
   const paperClass =
@@ -120,6 +131,15 @@ export default function EditorPage() {
       <header className="topbar">
         <Button onClick={() => navigate("/")}>← Cadernos</Button>
         <h2 className="notebook-title">{notebook?.name ?? "..."}</h2>
+        <label className="line-color" title="Cor da linha do caderno">
+          Linha
+          <input
+            type="color"
+            value={customLineColor ?? DEFAULT_LINE_COLOR}
+            onChange={(e) => setLineColor.mutate(e.target.value)}
+          />
+        </label>
+        <ThemeToggle />
         <span className={`save-status save-status--${status}`}>{STATUS_LABEL[status]}</span>
       </header>
 
@@ -151,7 +171,9 @@ export default function EditorPage() {
       <main className="paper-area">
         <div className={paperClass} style={paperStyle}>
           {editor && <Toolbar editor={editor} />}
-          <EditorContent editor={editor} />
+          <div className="paper-lines">
+            <EditorContent editor={editor} />
+          </div>
         </div>
       </main>
     </div>
