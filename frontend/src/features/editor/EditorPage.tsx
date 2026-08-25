@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { EditorContent, useEditor } from "@tiptap/react";
 import type { JSONContent } from "@tiptap/core";
@@ -87,6 +87,27 @@ export default function EditorPage() {
       setActiveId(page.id);
     },
   });
+
+  // Caderno vazio → cria a 1ª página automaticamente (senão o autosave
+  // tentaria salvar na página 0 e receberia 404 — conteúdo se perderia).
+  // Ref guard: cria UMA vez por montagem (o refetch do onSuccess não
+  // pode re-disparar a criação — causava páginas duplicadas).
+  const createdFirstRef = useRef(false);
+  useEffect(() => {
+    if (createdFirstRef.current) return;
+    if (pages.length === 0 && activeId === null && !createPage.isPending) {
+      createdFirstRef.current = true;
+      createPage.mutate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pages.length, activeId, createPage.isPending]);
+
+  // Quando a 1ª página nasce (activeId vai de null → id), salva o que foi
+  // digitado antes da criação.
+  useEffect(() => {
+    if (activeId !== null) void flush();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId]);
 
   const removePage = useMutation({
     mutationFn: (pageId: number) => api.delete(`/api/v1/pages/${pageId}`),

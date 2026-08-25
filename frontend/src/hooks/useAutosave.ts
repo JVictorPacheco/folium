@@ -29,6 +29,9 @@ export function useAutosave({ pageId, revision, getJson, onRevision, delay = 100
 
   const flush = useCallback(async () => {
     if (!dirtyRef.current) return;
+    // Sem página criada ainda (id 0/null) → mantém pendente; o próximo
+    // flush (após a página nascer) salva no id real.
+    if (pageIdRef.current <= 0) return;
     dirtyRef.current = false;
     setStatus("saving");
     try {
