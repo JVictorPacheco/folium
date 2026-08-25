@@ -13,7 +13,7 @@ import { editorExtensions } from "./extensions";
 import Toolbar from "./Toolbar";
 
 const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
-const DEFAULT_LINE_COLOR = "#9db3c8";
+const DEFAULT_LINE_COLOR = "#D9CDB4";
 
 const STATUS_LABEL: Record<AutosaveStatus, string> = {
   saved: "Salvo",
