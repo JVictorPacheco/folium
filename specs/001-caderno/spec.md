@@ -64,6 +64,9 @@ individual na nuvem.
 - **FR-14**: Alternância de tema claro/escuro (modo dark: fundo preto, linhas do
   caderno brancas e texto claro por padrão), mantendo a possibilidade de o
   usuário escolher a cor da caneta e a cor da linha.
+- **FR-15**: Identidade visual de caderno (design system): paleta "folha de
+  papel" (terracota/oliva/creme), fontes manuscritas (Kalam) para títulos e
+  corpo (Nunito), aplicada de forma consistente aos temas claro e escuro.
 
 ## Requisitos Não-Funcionais
 

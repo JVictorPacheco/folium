@@ -66,6 +66,13 @@
 - [x] T9.4 Seletor de cor da linha no editor (`PATCH line_color`) + tratamento do default como "auto"
 - [x] T9.5 Teste do tema (claro ↔ escuro; smoke test visual pendente)
 
+## Fase 10 — Design System e Fix de Autosave
+
+- [x] T10.1 Design system "caderno" (paleta folha de papel + fontes Kalam/Nunito) em claro/escuro
+- [x] T10.2 Fix autosave em caderno vazio (cria a 1ª página automaticamente)
+- [x] T10.3 Guard no `useAutosave` para `pageId <= 0` (mantém pendente, não salva)
+- [x] T10.4 Teste do guard `pageId <= 0` no `useAutosave`
+
 ## Grupos paralelos seguros
 
 - Fase 1: T1.1 ∥ T1.2 ∥ T1.3

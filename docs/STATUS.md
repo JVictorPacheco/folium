@@ -25,11 +25,15 @@ ponta a ponta** (smoke test manual adiado).
   - Autosave com debounce + flush no `beforeunload` + indicador de status.
   - **Modo dark**: `ThemeContext` + toggle no topbar, papel preto com linhas
     brancas e texto claro, seletor de cor da linha (`PATCH line_color`).
+  - **Design system "caderno"** (folha de papel): paleta terracota/oliva/creme,
+    fontes Kalam (títulos) + Nunito (corpo), em claro e escuro.
+  - **Fix de autosave em caderno vazio**: cria a 1ª página automaticamente +
+    guard `pageId <= 0` no `useAutosave` (não perde mais conteúdo).
 
 ### Verificado (automatizado)
 
 - ✅ Backend: **17 testes passando** (`pytest`) — inclui upload/validação de assets.
-- ✅ Frontend: **11 testes passando** (`vitest`), `tsc --noEmit` limpo, build Vite OK.
+- ✅ Frontend: **12 testes passando** (`vitest`), `tsc --noEmit` limpo, build Vite OK.
 
 ### NÃO verificado (pendente)
 
@@ -79,3 +83,6 @@ Regras rápidas:
 - **2026-08-25** — Testes pendentes concluídos: `T5.3` (assets), `T8.1` (hooks/componentes) e
   `T9.5` (tema). 17 testes backend + 11 frontend. `greenlet` adicionado a `requirements.txt`
   (dependência do SQLAlchemy async).
+- **2026-08-25** — Integração do PR #1 (`feature/tema-caderno`, do andfmp): design system
+  "caderno" (paleta + fontes) e fix de autosave em caderno vazio. Merge testado na branch
+  `feature/merge-tema-caderno` (17 backend + 12 frontend, build OK). Pendente de merge em `develop`.
