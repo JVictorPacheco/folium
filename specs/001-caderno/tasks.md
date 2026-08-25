@@ -35,7 +35,7 @@
 
 - [x] T5.1 `StoragePort` + adaptador `LocalStorage`
 - [x] T5.2 `AssetService` + rota `POST /assets` (validação tipo/tamanho)
-- [ ] T5.3 Testes de upload/validação
+- [x] T5.3 Testes de upload/validação
 
 ## Fase 6 — Frontend: Auth e Navegação
 
@@ -54,7 +54,7 @@
 
 ## Fase 8 — Testes E2E e Polimento
 
-- [ ] T8.1 Testes de componentes e hooks (Vitest + Testing Library)
+- [x] T8.1 Testes de componentes e hooks (Vitest + Testing Library)
 - [ ] T8.2 Smoke test manual do fluxo completo (cadastro → caderno → editar → recarregar)
 - [x] T8.3 README com instruções de setup/execução
 
@@ -64,7 +64,7 @@
 - [x] T9.2 CSS do tema dark (variáveis sobrescritas + papel preto com linhas brancas e texto claro)
 - [x] T9.3 Toggle de tema no topbar (lista de cadernos e editor)
 - [x] T9.4 Seletor de cor da linha no editor (`PATCH line_color`) + tratamento do default como "auto"
-- [ ] T9.5 Teste do tema + smoke test visual (claro ↔ escuro)
+- [x] T9.5 Teste do tema (claro ↔ escuro; smoke test visual pendente)
 
 ## Grupos paralelos seguros
 
