@@ -80,6 +80,18 @@ describe("useAutosave", () => {
     expect(hook.result.current.status).toBe("saved");
   });
 
+  it("não salva enquanto não há página criada (id <= 0) e mantém pendente", async () => {
+    const { hook } = setup({ pageId: 0 });
+
+    act(() => hook.result.current.schedule());
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(put).not.toHaveBeenCalled();
+    expect(hook.result.current.status).toBe("unsaved");
+  });
+
   it("marca erro e permite retry na próxima edição", async () => {
     put.mockRejectedValueOnce(new Error("rede fora"));
     const { hook } = setup();
