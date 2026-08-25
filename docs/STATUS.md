@@ -1,12 +1,12 @@
 # Status do Projeto
 
-> Ponto de retomada. Atualizado em: 2026-08-24.
+> Ponto de retomada. Atualizado em: 2026-08-25.
 
 ## Onde paramos
 
-MVP do **Folium** (caderno digital na nuvem) implementado e **parcialmente
-verificado**. O sistema ainda **não foi testado de ponta a ponta** (smoke test
-manual adiado).
+MVP do **Folium** (caderno digital na nuvem) implementado, incluindo o **modo
+dark**, e **parcialmente verificado**. O sistema ainda **não foi testado de
+ponta a ponta** (smoke test manual adiado).
 
 ### O que está pronto
 
@@ -23,6 +23,8 @@ manual adiado).
     títulos (H1-H3), link, imagem, PDF embutido (node custom).
   - Linhas de caderno via CSS + modo de página fixo vs. contínuo.
   - Autosave com debounce + flush no `beforeunload` + indicador de status.
+  - **Modo dark**: `ThemeContext` + toggle no topbar, papel preto com linhas
+    brancas e texto claro, seletor de cor da linha (`PATCH line_color`).
 
 ### Verificado (automatizado)
 
@@ -34,23 +36,28 @@ manual adiado).
 - ❌ **Smoke test manual de ponta a ponta** (cadastro → caderno → editar → recarregar).
 - ❌ `docker compose up --build` completo (backend + postgres + frontend juntos).
 - ❌ Upload real de imagem/PDF pela UI (testado só por unit/API no backend).
+- ❌ Alternância visual claro ↔ escuro (smoke test visual do tema).
 
 ### O que falta (próximo passo)
 
-1. Rodar `docker compose up --build` e validar o fluxo completo no navegador.
-2. Aumentar cobertura de testes do frontend (componentes: Toolbar, EditorPage, autosave).
-3. Testes E2E (ex.: Playwright) para o fluxo principal.
-4. Configurar CI (ex.: GitHub Actions) rodando `pytest` + `vitest`.
+1. **T5.3** — Testes de upload/validação de assets (backend).
+2. **T8.1** — Testes de componentes e hooks no frontend (Vitest + Testing Library;
+   só existe `useDebouncedCallback.test.ts`).
+3. **T8.2** — Smoke test manual do fluxo completo + rodar `docker compose up --build`
+   e validar no navegador.
+4. **T9.5** — Teste do tema + smoke test visual (claro ↔ escuro).
+5. Testes E2E (ex.: Playwright) para o fluxo principal.
+6. Configurar CI (ex.: GitHub Actions) rodando `pytest` + `vitest`.
 
 ### Fora do MVP (backlog futuro)
 
 - Colaboração em tempo real (Yjs/Hocuspocus).
 - Exportar para PDF, histórico de versões, busca, tags, app mobile.
-- Modo dark (tema escuro).
 
 ## Como continuar (GitFlow)
 
-Branches principais: `main` (produção) e `develop` (integração).
+Branches principais: `main` (produção) e `develop` (integração). **Ambos apontam
+para o mesmo commit (`79aba42`) no momento desta atualização.**
 
 ```bash
 git checkout develop
@@ -68,3 +75,9 @@ Regras rápidas:
 - Correções = branch `fix/*`; releases = `release/*`; hotfix = `hotfix/*`.
 - Nunca commitar direto em `main` ou `develop`.
 - Rodar `pytest` (backend) e `npm test`/`npm run typecheck` (frontend) antes de abrir PR.
+
+## Registro de trabalho (para não perder o fio)
+
+- **2026-08-24** — MVP inicial implementado (backend + frontend), 10 testes backend + 1 frontend.
+- **2026-08-24** — Modo dark, caderno em tela cheia e alinhamento do texto às linhas (commit `79aba42`).
+- **2026-08-25** — GitFlow corrigido (`develop` sincronizado com `main`) e STATUS.md atualizado.
