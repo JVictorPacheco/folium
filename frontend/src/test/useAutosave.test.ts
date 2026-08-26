@@ -122,4 +122,50 @@ describe("useAutosave", () => {
 
     expect(put).toHaveBeenCalledTimes(1);
   });
+
+  it("tenta salvar novamente após um erro", async () => {
+    put.mockRejectedValueOnce(new Error("falha"));
+    put.mockResolvedValueOnce({ revision: 2 });
+    const { hook, onRevision } = setup();
+
+    act(() => hook.result.current.schedule());
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(hook.result.current.status).toBe("error");
+
+    await act(async () => {
+      vi.advanceTimersByTime(2500);
+    });
+    expect(put).toHaveBeenCalledTimes(2);
+    expect(onRevision).toHaveBeenCalledWith(2);
+    expect(hook.result.current.status).toBe("saved");
+  });
+
+  it("descarta o resultado se a página mudou durante o save", async () => {
+    let resolvePut!: (value: { revision: number }) => void;
+    put.mockReturnValue(new Promise((resolve) => (resolvePut = resolve)));
+
+    const onRevision = vi.fn();
+    const getJson = vi.fn(() => ({ type: "doc" }));
+    const { result, rerender } = renderHook(
+      ({ pageId }: { pageId: number }) =>
+        useAutosave({ pageId, revision: 1, getJson, onRevision, delay: 1000 }),
+      { initialProps: { pageId: 7 } },
+    );
+
+    act(() => result.current.schedule());
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(put).toHaveBeenCalledTimes(1);
+
+    rerender({ pageId: 8 });
+
+    await act(async () => {
+      resolvePut({ revision: 2 });
+    });
+
+    expect(onRevision).not.toHaveBeenCalled();
+  });
 });

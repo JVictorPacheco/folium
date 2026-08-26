@@ -61,6 +61,11 @@ export default function EditorPage() {
 
   useEffect(() => {
     if (editor && activePage) {
+      if (skipNextContentReset.current) {
+        skipNextContentReset.current = false;
+        setRevision(activePage.revision);
+        return;
+      }
       const content =
         activePage.content_json && Object.keys(activePage.content_json).length > 0
           ? (activePage.content_json as JSONContent)
@@ -93,10 +98,12 @@ export default function EditorPage() {
   // Ref guard: cria UMA vez por montagem (o refetch do onSuccess não
   // pode re-disparar a criação — causava páginas duplicadas).
   const createdFirstRef = useRef(false);
+  const skipNextContentReset = useRef(false);
   useEffect(() => {
     if (createdFirstRef.current) return;
     if (pages.length === 0 && activeId === null && !createPage.isPending) {
       createdFirstRef.current = true;
+      skipNextContentReset.current = true;
       createPage.mutate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
