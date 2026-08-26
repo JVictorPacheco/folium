@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { EditorContent, useEditor } from "@tiptap/react";
 import type { JSONContent } from "@tiptap/core";
@@ -41,6 +41,15 @@ export default function EditorPage() {
   const [activeId, setActiveId] = useState<number | null>(null);
   const [revision, setRevision] = useState(1);
 
+  const activeIdRef = useRef(activeId);
+  activeIdRef.current = activeId;
+  const revisionsRef = useRef<Record<number, number>>({});
+
+  const handleRevision = useCallback((pageId: number, newRevision: number) => {
+    revisionsRef.current[pageId] = newRevision;
+    if (pageId === activeIdRef.current) setRevision(newRevision);
+  }, []);
+
   const editor = useEditor({ extensions: editorExtensions, content: EMPTY_DOC });
 
   const getJson = (): Record<string, unknown> =>
@@ -50,7 +59,7 @@ export default function EditorPage() {
     pageId: activeId ?? 0,
     revision,
     getJson,
-    onRevision: setRevision,
+    onRevision: handleRevision,
   });
 
   useEffect(() => {
@@ -63,7 +72,6 @@ export default function EditorPage() {
     if (editor && activePage) {
       if (skipNextContentReset.current) {
         skipNextContentReset.current = false;
-        setRevision(activePage.revision);
         return;
       }
       const content =
@@ -71,9 +79,9 @@ export default function EditorPage() {
           ? (activePage.content_json as JSONContent)
           : EMPTY_DOC;
       editor.commands.setContent(content, false);
-      setRevision(activePage.revision);
+      setRevision(revisionsRef.current[activePage.id] ?? activePage.revision);
     }
-  }, [activeId, editor]);
+  }, [activePage?.id, editor]);
 
   useEffect(() => {
     if (!editor) return;
@@ -90,6 +98,7 @@ export default function EditorPage() {
     onSuccess: (page) => {
       qc.invalidateQueries({ queryKey: ["pages", notebookId] });
       setActiveId(page.id);
+      setRevision(page.revision);
     },
   });
 

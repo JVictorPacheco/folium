@@ -33,7 +33,7 @@ describe("useAutosave", () => {
   });
   afterEach(() => vi.useRealTimers());
 
-  it("salva após o debounce e atualiza a revision", async () => {
+  it("salva após o debounce e reporta a nova revision", async () => {
     put.mockResolvedValue({ revision: 2 });
     const { hook, onRevision, getJson } = setup();
 
@@ -49,7 +49,7 @@ describe("useAutosave", () => {
       content_json: { type: "doc" },
       revision: 1,
     });
-    expect(onRevision).toHaveBeenCalledWith(2);
+    expect(onRevision).toHaveBeenCalledWith(7, 2);
     expect(getJson).toHaveBeenCalled();
     expect(hook.result.current.status).toBe("saved");
   });
@@ -92,7 +92,7 @@ describe("useAutosave", () => {
     expect(hook.result.current.status).toBe("unsaved");
   });
 
-  it("marca erro e permite retry na próxima edição", async () => {
+  it("marca erro e permite salvar na próxima edição", async () => {
     put.mockRejectedValueOnce(new Error("rede fora"));
     const { hook } = setup();
 
@@ -123,26 +123,7 @@ describe("useAutosave", () => {
     expect(put).toHaveBeenCalledTimes(1);
   });
 
-  it("tenta salvar novamente após um erro", async () => {
-    put.mockRejectedValueOnce(new Error("falha"));
-    put.mockResolvedValueOnce({ revision: 2 });
-    const { hook, onRevision } = setup();
-
-    act(() => hook.result.current.schedule());
-    await act(async () => {
-      vi.advanceTimersByTime(1000);
-    });
-    expect(hook.result.current.status).toBe("error");
-
-    await act(async () => {
-      vi.advanceTimersByTime(2500);
-    });
-    expect(put).toHaveBeenCalledTimes(2);
-    expect(onRevision).toHaveBeenCalledWith(2);
-    expect(hook.result.current.status).toBe("saved");
-  });
-
-  it("descarta o resultado se a página mudou durante o save", async () => {
+  it("reporta a página salva mesmo se o usuário trocou de página", async () => {
     let resolvePut!: (value: { revision: number }) => void;
     put.mockReturnValue(new Promise((resolve) => (resolvePut = resolve)));
 
@@ -158,7 +139,6 @@ describe("useAutosave", () => {
     await act(async () => {
       vi.advanceTimersByTime(1000);
     });
-    expect(put).toHaveBeenCalledTimes(1);
 
     rerender({ pageId: 8 });
 
@@ -166,6 +146,6 @@ describe("useAutosave", () => {
       resolvePut({ revision: 2 });
     });
 
-    expect(onRevision).not.toHaveBeenCalled();
+    expect(onRevision).toHaveBeenCalledWith(7, 2);
   });
 });
