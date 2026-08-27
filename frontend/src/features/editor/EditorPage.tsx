@@ -34,7 +34,7 @@ export default function EditorPage() {
     queryFn: () => api.get<Notebook>(`/api/v1/notebooks/${notebookId}`),
   });
 
-  const { data: pages = [] } = useQuery({
+  const { data: pages = [], isPending: pagesLoading } = useQuery({
     queryKey: ["pages", notebookId],
     queryFn: () => api.get<Page[]>(`/api/v1/notebooks/${notebookId}/pages`),
   });
@@ -105,19 +105,18 @@ export default function EditorPage() {
 
   // Caderno vazio → cria a 1ª página automaticamente (senão o autosave
   // tentaria salvar na página 0 e receberia 404 — conteúdo se perderia).
-  // Ref guard: cria UMA vez por montagem (o refetch do onSuccess não
-  // pode re-disparar a criação — causava páginas duplicadas).
+  // Só cria quando a listagem já terminou de carregar (pagesLoading), para
+  // não criar página duplicada no reload de um caderno que já tem páginas.
   const createdFirstRef = useRef(false);
   const skipNextContentReset = useRef(false);
   useEffect(() => {
     if (createdFirstRef.current) return;
-    if (pages.length === 0 && activeId === null && !createPage.isPending) {
-      createdFirstRef.current = true;
-      skipNextContentReset.current = true;
-      createPage.mutate();
-    }
+    if (pagesLoading || pages.length > 0 || activeId !== null || createPage.isPending) return;
+    createdFirstRef.current = true;
+    skipNextContentReset.current = true;
+    createPage.mutate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pages.length, activeId, createPage.isPending]);
+  }, [pagesLoading, pages.length, activeId, createPage.isPending]);
 
   // Quando a 1ª página nasce (activeId vai de null → id), salva o que foi
   // digitado antes da criação.
