@@ -58,6 +58,9 @@ export default function LoginPage() {
           {loading ? "Entrando..." : "Entrar"}
         </Button>
         <p>
+          <Link to="/forgot-password">Esqueci minha senha?</Link>
+        </p>
+        <p>
           Não tem conta? <Link to="/register">Cadastre-se</Link>
         </p>
       </form>
