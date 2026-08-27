@@ -14,6 +14,7 @@ import Toolbar from "./Toolbar";
 
 const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
 const DEFAULT_LINE_COLOR = "#D9CDB4";
+const AUTO_LINE_COLORS = new Set(["#9db3c8", "#d9cdb4"]);
 
 const STATUS_LABEL: Record<AutosaveStatus, string> = {
   saved: "Salvo",
@@ -151,13 +152,15 @@ export default function EditorPage() {
   }
 
   const lineSpacing = notebook?.line_spacing ?? 28;
+  const [lineColorDraft, setLineColorDraft] = useState<string | null>(null);
   const customLineColor =
-    notebook?.line_color && notebook.line_color.toLowerCase() !== DEFAULT_LINE_COLOR
+    notebook?.line_color && !AUTO_LINE_COLORS.has(notebook.line_color.toLowerCase())
       ? notebook.line_color
       : undefined;
+  const effectiveLineColor = lineColorDraft ?? customLineColor ?? DEFAULT_LINE_COLOR;
   const paperStyle = {
     "--line-spacing": `${lineSpacing}px`,
-    ...(customLineColor ? { "--line-color": customLineColor } : {}),
+    ...(effectiveLineColor !== DEFAULT_LINE_COLOR ? { "--line-color": effectiveLineColor } : {}),
   } as CSSProperties;
 
   const paperClass =
@@ -172,8 +175,11 @@ export default function EditorPage() {
           Linha
           <input
             type="color"
-            value={customLineColor ?? DEFAULT_LINE_COLOR}
-            onChange={(e) => setLineColor.mutate(e.target.value)}
+            value={effectiveLineColor}
+            onChange={(e) => {
+              setLineColorDraft(e.target.value);
+              setLineColor.mutate(e.target.value);
+            }}
           />
         </label>
         <ThemeToggle />

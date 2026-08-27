@@ -8,7 +8,7 @@ from app.domain.enums import PageMode
 class NotebookCreate(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     page_mode: PageMode = PageMode.CONTINUOUS
-    line_color: str = "#9db3c8"
+    line_color: str = "#D9CDB4"
     line_spacing: int = Field(default=28, ge=16, le=64)
 
 
