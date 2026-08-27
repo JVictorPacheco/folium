@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     media_url_prefix: str = "/media"
     max_image_bytes: int = 10 * 1024 * 1024
     max_pdf_bytes: int = 25 * 1024 * 1024
+    reset_token_expire_minutes: int = 60
+    frontend_url: str = "http://localhost:5173"
 
 
 @lru_cache

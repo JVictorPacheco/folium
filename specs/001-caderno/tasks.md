@@ -79,6 +79,14 @@
 - [x] T11.2 E2E (Playwright: fluxo cadastro → caderno → editar → recarregar)
 - [x] T11.3 Fix: evitar página duplicada no reload (auto-create aguarda carregar as páginas)
 
+## Fase 12 — Refinamento de Auth (login/registro + reset de senha)
+
+- [x] T12.1 Login/registro: mensagem de erro amigável (`detail`), mostrar/ocultar senha, autocomplete, autofocus, tema e alerta
+- [x] T12.2 Recuperação de senha: modelo/repo/service + endpoints `forgot-password`/`reset-password` (token com validade)
+- [x] T12.3 Notificação: `EmailSender` port + adaptador de log (console) + migração Alembic
+- [x] T12.4 Frontend: telas "esqueci senha" e "nova senha" + link no login + rotas
+- [x] T12.5 Testes de reset de senha (backend)
+
 ## Grupos paralelos seguros
 
 - Fase 1: T1.1 ∥ T1.2 ∥ T1.3

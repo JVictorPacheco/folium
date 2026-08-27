@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "../../components/Button";
 import { Input } from "../../components/Input";
+import { PasswordInput } from "../../components/PasswordInput";
+import ThemeToggle from "../../components/ThemeToggle";
 import { useAuth } from "./AuthContext";
 
 export default function RegisterPage() {
@@ -33,18 +35,23 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-page">
+      <div className="auth-theme-toggle">
+        <ThemeToggle />
+      </div>
       <form className="card" onSubmit={handleSubmit}>
         <h1>Criar conta</h1>
         <Input
           type="email"
           placeholder="E-mail"
+          autoComplete="email"
+          autoFocus
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <Input
-          type="password"
+        <PasswordInput
           placeholder="Senha (mín. 8 caracteres)"
+          autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required

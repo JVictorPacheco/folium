@@ -45,6 +45,8 @@ individual na nuvem.
 9. Como usuário, quero sair (logout) e ter minha sessão encerrada.
 10. Como usuário, quero alternar entre tema claro e escuro, com o modo escuro
     parecendo um caderno preto real (fundo preto, linhas brancas, texto claro).
+11. Como usuário, quero recuperar minha senha caso esqueça (receber um link de
+    reset por e-mail e definir uma nova senha).
 
 ## Requisitos Funcionais
 
@@ -67,6 +69,11 @@ individual na nuvem.
 - **FR-15**: Identidade visual de caderno (design system): paleta "folha de
   papel" (terracota/oliva/creme), fontes manuscritas (Kalam) para títulos e
   corpo (Nunito), aplicada de forma consistente aos temas claro e escuro.
+- **FR-16**: Recuperação de senha: solicitar link de reset por e-mail
+  (`POST /auth/forgot-password`), token com validade (1h) e definição de nova
+  senha (`POST /auth/reset-password`). Resposta genérica no "esqueci minha
+  senha" (não revela se o e-mail existe). Entrega do link via adaptador de
+  e-mail (log no dev; SMTP futuramente).
 
 ## Requisitos Não-Funcionais
 
