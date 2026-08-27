@@ -1,12 +1,13 @@
 # Status do Projeto
 
-> Ponto de retomada. Atualizado em: 2026-08-25.
+> Ponto de retomada. Atualizado em: 2026-08-27.
 
 ## Onde paramos
 
-MVP do **Folium** (caderno digital na nuvem) implementado, incluindo o **modo
-dark**, e **parcialmente verificado**. O sistema ainda **não foi testado de
-ponta a ponta** (smoke test manual adiado).
+MVP do **Folium** (caderno digital na nuvem) implementado e **testado de ponta
+a ponta** (smoke test manual aprovado). Backend e frontend completos, com modo
+dark e design system "caderno". Testes automatizados cobrindo serviços,
+repositórios, hooks e componentes.
 
 ### O que está pronto
 
@@ -21,33 +22,25 @@ ponta a ponta** (smoke test manual adiado).
   - Login/cadastro, lista de cadernos (criar/renomear/excluir).
   - Editor TipTap: negrito/itálico/sublinhado, cor de caneta, marcação, listas,
     títulos (H1-H3), link, imagem, PDF embutido (node custom).
-  - Linhas de caderno via CSS + modo de página fixo vs. contínuo.
-  - Autosave com debounce + flush no `beforeunload` + indicador de status.
-  - **Modo dark**: `ThemeContext` + toggle no topbar, papel preto com linhas
-    brancas e texto claro, seletor de cor da linha (`PATCH line_color`).
-  - **Design system "caderno"** (folha de papel): paleta terracota/oliva/creme,
-    fontes Kalam (títulos) + Nunito (corpo), em claro e escuro.
-  - **Fix de autosave em caderno vazio**: cria a 1ª página automaticamente +
-    guard `pageId <= 0` no `useAutosave` (não perde mais conteúdo).
+  - Remover imagem/PDF (botão `✕` sobre o item).
+  - Linhas de caderno via CSS + modo de página fixo vs. contínuo + cor da linha.
+  - Autosave com debounce + flush no `beforeunload` + indicador de status +
+    revision por página (evita conflito `409`).
+  - **Modo dark**: `ThemeContext` + toggle, papel preto com linhas e texto claro.
+  - **Design system "caderno"**: paleta folha de papel + fontes Kalam/Nunito.
 
-### Verificado (automatizado)
+### Verificado (automatizado + manual)
 
-- ✅ Backend: **17 testes passando** (`pytest`) — inclui upload/validação de assets.
-- ✅ Frontend: **12 testes passando** (`vitest`), `tsc --noEmit` limpo, build Vite OK.
-
-### NÃO verificado (pendente)
-
-- ❌ **Smoke test manual de ponta a ponta** (cadastro → caderno → editar → recarregar).
-- ❌ `docker compose up --build` completo (backend + postgres + frontend juntos).
-- ❌ Upload real de imagem/PDF pela UI (testado só por unit/API no backend).
-- ❌ Smoke test visual do tema (alternância claro ↔ escuro no navegador).
+- ✅ Backend: **17 testes passando** (`pytest`).
+- ✅ Frontend: **16 testes passando** (`vitest`), `tsc --noEmit` limpo, build OK.
+- ✅ `docker compose up --build` completo (db + backend + frontend).
+- ✅ Smoke test manual: cadastro → caderno → editar → recarregar.
+- ✅ Upload real de imagem/PDF pela UI + remover + alternância de tema claro/escuro.
 
 ### O que falta (próximo passo)
 
-1. **T8.2** — Smoke test manual do fluxo completo + rodar `docker compose up --build`
-   e validar no navegador (inclui upload real pela UI e alternância visual de tema).
-2. Testes E2E (ex.: Playwright) para o fluxo principal.
-3. Configurar CI (ex.: GitHub Actions) rodando `pytest` + `vitest`.
+1. Testes E2E (ex.: Playwright) para o fluxo principal.
+2. Configurar CI (ex.: GitHub Actions) rodando `pytest` + `vitest`.
 
 ### Fora do MVP (backlog futuro)
 
@@ -81,8 +74,8 @@ Regras rápidas:
 - **2026-08-24** — Modo dark, caderno em tela cheia e alinhamento do texto às linhas (commit `79aba42`).
 - **2026-08-25** — GitFlow corrigido (`develop` sincronizado com `main`) e STATUS.md atualizado.
 - **2026-08-25** — Testes pendentes concluídos: `T5.3` (assets), `T8.1` (hooks/componentes) e
-  `T9.5` (tema). 17 testes backend + 11 frontend. `greenlet` adicionado a `requirements.txt`
-  (dependência do SQLAlchemy async).
+  `T9.5` (tema). `greenlet` adicionado a `requirements.txt` (dependência do SQLAlchemy async).
 - **2026-08-25** — Integração do PR #1 (`feature/tema-caderno`, do andfmp): design system
-  "caderno" (paleta + fontes) e fix de autosave em caderno vazio. Merge testado na branch
-  `feature/merge-tema-caderno` (17 backend + 12 frontend, build OK). Pendente de merge em `develop`.
+  "caderno" (paleta + fontes) e fix de autosave em caderno vazio.
+- **2026-08-27** — Smoke test manual (T8.2) aprovado. Correções aplicadas: URL de assets,
+  botão de remover imagem/PDF, autosave com revision por página (409) e cor da linha no tema.

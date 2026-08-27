@@ -55,7 +55,7 @@
 ## Fase 8 — Testes E2E e Polimento
 
 - [x] T8.1 Testes de componentes e hooks (Vitest + Testing Library)
-- [ ] T8.2 Smoke test manual do fluxo completo (cadastro → caderno → editar → recarregar)
+- [x] T8.2 Smoke test manual do fluxo completo (cadastro → caderno → editar → recarregar)
 - [x] T8.3 README com instruções de setup/execução
 
 ## Fase 9 — Modo Dark (tema escuro)
