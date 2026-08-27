@@ -72,8 +72,8 @@ individual na nuvem.
 - **FR-16**: Recuperação de senha: solicitar link de reset por e-mail
   (`POST /auth/forgot-password`), token com validade (1h) e definição de nova
   senha (`POST /auth/reset-password`). Resposta genérica no "esqueci minha
-  senha" (não revela se o e-mail existe). Entrega do link via adaptador de
-  e-mail (log no dev; SMTP futuramente).
+  senha" (não revela se o e-mail existe). Entrega via SMTP (`EmailSender` port):
+  Mailpit no dev, provedor transacional (Resend/SendGrid/SES) em produção via env.
 
 ## Requisitos Não-Funcionais
 

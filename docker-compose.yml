@@ -20,6 +20,12 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://folium:folium@db:5432/folium
       JWT_SECRET_KEY: dev-secret-change-me
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      SMTP_USERNAME: ""
+      SMTP_PASSWORD: ""
+      SMTP_FROM_EMAIL: "Folium <no-reply@folium.app>"
+      SMTP_USE_TLS: "false"
     ports:
       - "8000:8000"
     volumes:
@@ -28,6 +34,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
 
   frontend:
     build: ./frontend
