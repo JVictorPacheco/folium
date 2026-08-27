@@ -5,9 +5,9 @@
 ## Onde paramos
 
 MVP do **Folium** (caderno digital na nuvem) implementado e **testado de ponta
-a ponta** (smoke test manual aprovado). Backend e frontend completos, com modo
-dark e design system "caderno". Testes automatizados cobrindo serviços,
-repositórios, hooks e componentes.
+a ponta** (smoke test manual + E2E aprovados). Backend e frontend completos,
+com modo dark e design system "caderno". Testes automatizados (unit, integração
+e E2E) e CI (GitHub Actions) configurados.
 
 ### O que está pronto
 
@@ -33,14 +33,16 @@ repositórios, hooks e componentes.
 
 - ✅ Backend: **17 testes passando** (`pytest`).
 - ✅ Frontend: **16 testes passando** (`vitest`), `tsc --noEmit` limpo, build OK.
+- ✅ **E2E (Playwright)**: fluxo cadastro → caderno → editar → recarregar passando.
+- ✅ **CI (GitHub Actions)**: `pytest` + `vitest`/`typecheck` rodam a cada PR/push.
 - ✅ `docker compose up --build` completo (db + backend + frontend).
 - ✅ Smoke test manual: cadastro → caderno → editar → recarregar.
 - ✅ Upload real de imagem/PDF pela UI + remover + alternância de tema claro/escuro.
 
-### O que falta (próximo passo)
+### Próximo passo
 
-1. Testes E2E (ex.: Playwright) para o fluxo principal.
-2. Configurar CI (ex.: GitHub Actions) rodando `pytest` + `vitest`.
+- **Refinamento tela a tela**: revisar cada tela e propor melhorias de UX/visual.
+- (opcional) Proteção de branch no GitHub (bloquear merge com CI falhando).
 
 ### Fora do MVP (backlog futuro)
 
@@ -79,3 +81,5 @@ Regras rápidas:
   "caderno" (paleta + fontes) e fix de autosave em caderno vazio.
 - **2026-08-27** — Smoke test manual (T8.2) aprovado. Correções aplicadas: URL de assets,
   botão de remover imagem/PDF, autosave com revision por página (409) e cor da linha no tema.
+- **2026-08-27** — CI (GitHub Actions: `pytest` + `vitest`/`typecheck`) configurado e ativo (PR #5).
+- **2026-08-27** — E2E (Playwright) do fluxo principal + fix de página duplicada no reload (PR #6).
