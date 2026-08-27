@@ -61,6 +61,11 @@ export const api = {
   delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
 };
 
+export function resolveAssetUrl(url: string): string {
+  if (/^https?:\/\//.test(url)) return url;
+  return `${BASE_URL}${url.startsWith("/") ? url : `/${url}`}`;
+}
+
 export async function uploadAsset(file: File, kind: "image" | "pdf"): Promise<Asset> {
   const form = new FormData();
   form.append("file", file);
@@ -76,5 +81,6 @@ export async function uploadAsset(file: File, kind: "image" | "pdf"): Promise<As
     body: form,
   });
   if (!res.ok) throw new ApiError(res.status, await res.text());
-  return (await res.json()) as Asset;
+  const asset = (await res.json()) as Asset;
+  return { ...asset, url: resolveAssetUrl(asset.url) };
 }

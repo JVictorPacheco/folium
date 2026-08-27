@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { EditorContent, useEditor } from "@tiptap/react";
 import type { JSONContent } from "@tiptap/core";
@@ -14,6 +14,7 @@ import Toolbar from "./Toolbar";
 
 const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
 const DEFAULT_LINE_COLOR = "#D9CDB4";
+const AUTO_LINE_COLORS = new Set(["#9db3c8", "#d9cdb4"]);
 
 const STATUS_LABEL: Record<AutosaveStatus, string> = {
   saved: "Salvo",
@@ -41,6 +42,15 @@ export default function EditorPage() {
   const [activeId, setActiveId] = useState<number | null>(null);
   const [revision, setRevision] = useState(1);
 
+  const activeIdRef = useRef(activeId);
+  activeIdRef.current = activeId;
+  const revisionsRef = useRef<Record<number, number>>({});
+
+  const handleRevision = useCallback((pageId: number, newRevision: number) => {
+    revisionsRef.current[pageId] = newRevision;
+    if (pageId === activeIdRef.current) setRevision(newRevision);
+  }, []);
+
   const editor = useEditor({ extensions: editorExtensions, content: EMPTY_DOC });
 
   const getJson = (): Record<string, unknown> =>
@@ -50,7 +60,7 @@ export default function EditorPage() {
     pageId: activeId ?? 0,
     revision,
     getJson,
-    onRevision: setRevision,
+    onRevision: handleRevision,
   });
 
   useEffect(() => {
@@ -61,14 +71,18 @@ export default function EditorPage() {
 
   useEffect(() => {
     if (editor && activePage) {
+      if (skipNextContentReset.current) {
+        skipNextContentReset.current = false;
+        return;
+      }
       const content =
         activePage.content_json && Object.keys(activePage.content_json).length > 0
           ? (activePage.content_json as JSONContent)
           : EMPTY_DOC;
       editor.commands.setContent(content, false);
-      setRevision(activePage.revision);
+      setRevision(revisionsRef.current[activePage.id] ?? activePage.revision);
     }
-  }, [activeId, editor]);
+  }, [activePage?.id, editor]);
 
   useEffect(() => {
     if (!editor) return;
@@ -85,6 +99,7 @@ export default function EditorPage() {
     onSuccess: (page) => {
       qc.invalidateQueries({ queryKey: ["pages", notebookId] });
       setActiveId(page.id);
+      setRevision(page.revision);
     },
   });
 
@@ -93,10 +108,12 @@ export default function EditorPage() {
   // Ref guard: cria UMA vez por montagem (o refetch do onSuccess não
   // pode re-disparar a criação — causava páginas duplicadas).
   const createdFirstRef = useRef(false);
+  const skipNextContentReset = useRef(false);
   useEffect(() => {
     if (createdFirstRef.current) return;
     if (pages.length === 0 && activeId === null && !createPage.isPending) {
       createdFirstRef.current = true;
+      skipNextContentReset.current = true;
       createPage.mutate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -135,13 +152,15 @@ export default function EditorPage() {
   }
 
   const lineSpacing = notebook?.line_spacing ?? 28;
+  const [lineColorDraft, setLineColorDraft] = useState<string | null>(null);
   const customLineColor =
-    notebook?.line_color && notebook.line_color.toLowerCase() !== DEFAULT_LINE_COLOR
+    notebook?.line_color && !AUTO_LINE_COLORS.has(notebook.line_color.toLowerCase())
       ? notebook.line_color
       : undefined;
+  const effectiveLineColor = lineColorDraft ?? customLineColor ?? DEFAULT_LINE_COLOR;
   const paperStyle = {
     "--line-spacing": `${lineSpacing}px`,
-    ...(customLineColor ? { "--line-color": customLineColor } : {}),
+    ...(effectiveLineColor !== DEFAULT_LINE_COLOR ? { "--line-color": effectiveLineColor } : {}),
   } as CSSProperties;
 
   const paperClass =
@@ -156,8 +175,11 @@ export default function EditorPage() {
           Linha
           <input
             type="color"
-            value={customLineColor ?? DEFAULT_LINE_COLOR}
-            onChange={(e) => setLineColor.mutate(e.target.value)}
+            value={effectiveLineColor}
+            onChange={(e) => {
+              setLineColorDraft(e.target.value);
+              setLineColor.mutate(e.target.value);
+            }}
           />
         </label>
         <ThemeToggle />
