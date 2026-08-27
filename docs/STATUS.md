@@ -83,3 +83,5 @@ Regras rápidas:
   botão de remover imagem/PDF, autosave com revision por página (409) e cor da linha no tema.
 - **2026-08-27** — CI (GitHub Actions: `pytest` + `vitest`/`typecheck`) configurado e ativo (PR #5).
 - **2026-08-27** — E2E (Playwright) do fluxo principal + fix de página duplicada no reload (PR #6).
+- **2026-08-27** — Refinamento de auth (login/registro) + recuperação de senha: endpoints
+  `forgot-password`/`reset-password`, token com validade, `EmailSender` (SMTP) e Mailpit no dev (PR #8).

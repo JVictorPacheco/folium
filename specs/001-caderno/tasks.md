@@ -86,6 +86,7 @@
 - [x] T12.3 Notificação: `EmailSender` port + adaptador de log (console) + migração Alembic
 - [x] T12.4 Frontend: telas "esqueci senha" e "nova senha" + link no login + rotas
 - [x] T12.5 Testes de reset de senha (backend)
+- [x] T12.6 Envio por SMTP (`SmtpEmailSender`) + Mailpit no dev (caixa de entrada local)
 
 ## Grupos paralelos seguros
 
