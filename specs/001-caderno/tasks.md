@@ -73,6 +73,12 @@
 - [x] T10.3 Guard no `useAutosave` para `pageId <= 0` (mantém pendente, não salva)
 - [x] T10.4 Teste do guard `pageId <= 0` no `useAutosave`
 
+## Fase 11 — Infra e QA (CI + E2E)
+
+- [x] T11.1 CI (GitHub Actions: `pytest` backend + `vitest`/`typecheck` frontend)
+- [x] T11.2 E2E (Playwright: fluxo cadastro → caderno → editar → recarregar)
+- [x] T11.3 Fix: evitar página duplicada no reload (auto-create aguarda carregar as páginas)
+
 ## Grupos paralelos seguros
 
 - Fase 1: T1.1 ∥ T1.2 ∥ T1.3
