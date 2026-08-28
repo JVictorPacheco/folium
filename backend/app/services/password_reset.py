@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta, timezone
 
 from app.core.config import settings
@@ -5,6 +6,8 @@ from app.core.security import generate_reset_token, hash_password, hash_reset_to
 from app.notifications.port import EmailSender
 from app.repositories.password_reset import PasswordResetRepository
 from app.repositories.user import UserRepository
+
+logger = logging.getLogger("uvicorn.error")
 
 
 class ResetError(Exception):
@@ -34,7 +37,10 @@ class PasswordResetService:
         await self._token_repo.create(user.id, hash_reset_token(token), expires_at)
 
         link = f"{self._frontend_url}/reset-password?token={token}"
-        await self._email_sender.send_reset_link(email, link)
+        try:
+            await self._email_sender.send_reset_link(email, link)
+        except Exception:
+            logger.exception("Falha ao enviar e-mail de reset para %s", email)
 
     async def reset(self, token: str, new_password: str) -> None:
         record = await self._token_repo.get_valid(hash_reset_token(token))
