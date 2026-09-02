@@ -12,6 +12,12 @@ node_modules/
 dist/
 .vite/
 
+# Playwright (E2E)
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
 # Env / segredos
 .env
 .env.local
@@ -25,3 +31,6 @@ backend/storage/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Obsidian (config local do vault)
+.obsidian/

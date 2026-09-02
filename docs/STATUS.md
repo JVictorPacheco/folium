@@ -1,12 +1,13 @@
 # Status do Projeto
 
-> Ponto de retomada. Atualizado em: 2026-08-25.
+> Ponto de retomada. Atualizado em: 2026-08-27.
 
 ## Onde paramos
 
-MVP do **Folium** (caderno digital na nuvem) implementado, incluindo o **modo
-dark**, e **parcialmente verificado**. O sistema ainda **não foi testado de
-ponta a ponta** (smoke test manual adiado).
+MVP do **Folium** (caderno digital na nuvem) implementado e **testado de ponta
+a ponta** (smoke test manual + E2E aprovados). Backend e frontend completos,
+com modo dark e design system "caderno". Testes automatizados (unit, integração
+e E2E) e CI (GitHub Actions) configurados.
 
 ### O que está pronto
 
@@ -21,33 +22,27 @@ ponta a ponta** (smoke test manual adiado).
   - Login/cadastro, lista de cadernos (criar/renomear/excluir).
   - Editor TipTap: negrito/itálico/sublinhado, cor de caneta, marcação, listas,
     títulos (H1-H3), link, imagem, PDF embutido (node custom).
-  - Linhas de caderno via CSS + modo de página fixo vs. contínuo.
-  - Autosave com debounce + flush no `beforeunload` + indicador de status.
-  - **Modo dark**: `ThemeContext` + toggle no topbar, papel preto com linhas
-    brancas e texto claro, seletor de cor da linha (`PATCH line_color`).
+  - Remover imagem/PDF (botão `✕` sobre o item).
+  - Linhas de caderno via CSS + modo de página fixo vs. contínuo + cor da linha.
+  - Autosave com debounce + flush no `beforeunload` + indicador de status +
+    revision por página (evita conflito `409`).
+  - **Modo dark**: `ThemeContext` + toggle, papel preto com linhas e texto claro.
+  - **Design system "caderno"**: paleta folha de papel + fontes Kalam/Nunito.
 
-### Verificado (automatizado)
+### Verificado (automatizado + manual)
 
-- ✅ Backend: imagem Docker compilada e **10 testes passando** (`pytest`).
-- ✅ Frontend: `tsc --noEmit` limpo, build Vite OK, **1 teste passando** (`vitest`).
+- ✅ Backend: **17 testes passando** (`pytest`).
+- ✅ Frontend: **16 testes passando** (`vitest`), `tsc --noEmit` limpo, build OK.
+- ✅ **E2E (Playwright)**: fluxo cadastro → caderno → editar → recarregar passando.
+- ✅ **CI (GitHub Actions)**: `pytest` + `vitest`/`typecheck` rodam a cada PR/push.
+- ✅ `docker compose up --build` completo (db + backend + frontend).
+- ✅ Smoke test manual: cadastro → caderno → editar → recarregar.
+- ✅ Upload real de imagem/PDF pela UI + remover + alternância de tema claro/escuro.
 
-### NÃO verificado (pendente)
+### Próximo passo
 
-- ❌ **Smoke test manual de ponta a ponta** (cadastro → caderno → editar → recarregar).
-- ❌ `docker compose up --build` completo (backend + postgres + frontend juntos).
-- ❌ Upload real de imagem/PDF pela UI (testado só por unit/API no backend).
-- ❌ Alternância visual claro ↔ escuro (smoke test visual do tema).
-
-### O que falta (próximo passo)
-
-1. **T5.3** — Testes de upload/validação de assets (backend).
-2. **T8.1** — Testes de componentes e hooks no frontend (Vitest + Testing Library;
-   só existe `useDebouncedCallback.test.ts`).
-3. **T8.2** — Smoke test manual do fluxo completo + rodar `docker compose up --build`
-   e validar no navegador.
-4. **T9.5** — Teste do tema + smoke test visual (claro ↔ escuro).
-5. Testes E2E (ex.: Playwright) para o fluxo principal.
-6. Configurar CI (ex.: GitHub Actions) rodando `pytest` + `vitest`.
+- **Refinamento tela a tela**: revisar cada tela e propor melhorias de UX/visual.
+- (opcional) Proteção de branch no GitHub (bloquear merge com CI falhando).
 
 ### Fora do MVP (backlog futuro)
 
@@ -56,8 +51,7 @@ ponta a ponta** (smoke test manual adiado).
 
 ## Como continuar (GitFlow)
 
-Branches principais: `main` (produção) e `develop` (integração). **Ambos apontam
-para o mesmo commit (`79aba42`) no momento desta atualização.**
+Branches principais: `main` (produção) e `develop` (integração).
 
 ```bash
 git checkout develop
@@ -81,3 +75,22 @@ Regras rápidas:
 - **2026-08-24** — MVP inicial implementado (backend + frontend), 10 testes backend + 1 frontend.
 - **2026-08-24** — Modo dark, caderno em tela cheia e alinhamento do texto às linhas (commit `79aba42`).
 - **2026-08-25** — GitFlow corrigido (`develop` sincronizado com `main`) e STATUS.md atualizado.
+- **2026-08-25** — Testes pendentes concluídos: `T5.3` (assets), `T8.1` (hooks/componentes) e
+  `T9.5` (tema). `greenlet` adicionado a `requirements.txt` (dependência do SQLAlchemy async).
+- **2026-08-25** — Integração do PR #1 (`feature/tema-caderno`, do andfmp): design system
+  "caderno" (paleta + fontes) e fix de autosave em caderno vazio.
+- **2026-08-27** — Smoke test manual (T8.2) aprovado. Correções aplicadas: URL de assets,
+  botão de remover imagem/PDF, autosave com revision por página (409) e cor da linha no tema.
+- **2026-08-27** — CI (GitHub Actions: `pytest` + `vitest`/`typecheck`) configurado e ativo (PR #5).
+- **2026-08-27** — E2E (Playwright) do fluxo principal + fix de página duplicada no reload (PR #6).
+- **2026-08-27** — Refinamento de auth (login/registro) + recuperação de senha: endpoints
+  `forgot-password`/`reset-password`, token com validade, `EmailSender` (SMTP) e Mailpit no dev (PR #8).
+- **2026-09-02** — Início do "Refinamento tela a tela" (branch `feature/refinamento-editor`,
+  a partir de `develop`, que estava 30 commits à frente de `main` — release para `main` ainda
+  pendente). Editor: folha com largura limitada, sombra/moldura e margem vermelha (T13.1);
+  toolbar com aparência de botão (T13.2). Corrigido hot-reload do Vite no Docker (bind mount
+  do Windows não disparava HMR sem `usePolling`). SMTP real configurado com Gmail (senha de
+  app) — reset de senha testado de ponta a ponta com entrega em caixa real (T12.7); Mailpit
+  segue como padrão do dev, Gmail via `.env`. T13.3 (links de auth com a paleta do design
+  system) e T13.4 (lista de cadernos revisada — já estava centralizada, sem bug real)
+  concluídos. **Fase 13 completa.**

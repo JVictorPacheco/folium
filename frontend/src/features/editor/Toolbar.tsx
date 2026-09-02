@@ -74,7 +74,7 @@ export default function Toolbar({ editor }: { editor: Editor }) {
         <input
           type="color"
           className="color-input"
-          onInput={(e) => editor.chain().focus().setColor((e.target as HTMLInputElement).value).run()}
+          onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
         />
       </label>
       <button className={cls(editor.isActive("highlight"))} onClick={() => editor.chain().focus().toggleHighlight().run()} title="Marcador">

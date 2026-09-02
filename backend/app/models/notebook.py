@@ -27,7 +27,7 @@ class Notebook(Base):
         default=PageMode.CONTINUOUS,
         nullable=False,
     )
-    line_color: Mapped[str] = mapped_column(String(20), default="#9db3c8", nullable=False)
+    line_color: Mapped[str] = mapped_column(String(20), default="#D9CDB4", nullable=False)
     line_spacing: Mapped[int] = mapped_column(default=28, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

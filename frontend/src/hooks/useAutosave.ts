@@ -8,7 +8,7 @@ interface AutosaveArgs {
   pageId: number;
   revision: number;
   getJson: () => Record<string, unknown>;
-  onRevision: (revision: number) => void;
+  onRevision: (pageId: number, revision: number) => void;
   delay?: number;
 }
 
@@ -29,18 +29,24 @@ export function useAutosave({ pageId, revision, getJson, onRevision, delay = 100
 
   const flush = useCallback(async () => {
     if (!dirtyRef.current) return;
+    if (pageIdRef.current <= 0) return;
+
+    const savingPageId = pageIdRef.current;
     dirtyRef.current = false;
     setStatus("saving");
+
     try {
       const res = await api.put<{ revision: number }>(
-        `/api/v1/pages/${pageIdRef.current}/content`,
+        `/api/v1/pages/${savingPageId}/content`,
         { content_json: getJsonRef.current(), revision: revisionRef.current },
       );
-      onRevisionRef.current(res.revision);
-      setStatus("saved");
+      onRevisionRef.current(savingPageId, res.revision);
+      if (pageIdRef.current === savingPageId) setStatus("saved");
     } catch {
-      dirtyRef.current = true;
-      setStatus("error");
+      if (pageIdRef.current === savingPageId) {
+        dirtyRef.current = true;
+        setStatus("error");
+      }
     }
   }, []);
 

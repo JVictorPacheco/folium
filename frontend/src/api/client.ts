@@ -29,6 +29,17 @@ interface RequestOptions {
   body?: unknown;
 }
 
+async function errorMessage(res: Response): Promise<string> {
+  const text = await res.text();
+  try {
+    const parsed = JSON.parse(text) as { detail?: unknown };
+    if (typeof parsed.detail === "string") return parsed.detail;
+  } catch {
+    // corpo não é JSON; usa o texto cru
+  }
+  return text;
+}
+
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const headers: Record<string, string> = {};
   const token = getToken();
@@ -48,7 +59,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   if (res.status === 204) return undefined as T;
   if (!res.ok) {
-    throw new ApiError(res.status, await res.text());
+    throw new ApiError(res.status, await errorMessage(res));
   }
   return (await res.json()) as T;
 }
@@ -60,6 +71,11 @@ export const api = {
   patch: <T>(path: string, body?: unknown) => request<T>(path, { method: "PATCH", body }),
   delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
 };
+
+export function resolveAssetUrl(url: string): string {
+  if (/^https?:\/\//.test(url)) return url;
+  return `${BASE_URL}${url.startsWith("/") ? url : `/${url}`}`;
+}
 
 export async function uploadAsset(file: File, kind: "image" | "pdf"): Promise<Asset> {
   const form = new FormData();
@@ -75,6 +91,7 @@ export async function uploadAsset(file: File, kind: "image" | "pdf"): Promise<As
     headers,
     body: form,
   });
-  if (!res.ok) throw new ApiError(res.status, await res.text());
-  return (await res.json()) as Asset;
+  if (!res.ok) throw new ApiError(res.status, await errorMessage(res));
+  const asset = (await res.json()) as Asset;
+  return { ...asset, url: resolveAssetUrl(asset.url) };
 }

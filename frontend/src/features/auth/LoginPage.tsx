@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "../../components/Button";
 import { Input } from "../../components/Input";
+import { PasswordInput } from "../../components/PasswordInput";
+import ThemeToggle from "../../components/ThemeToggle";
 import { useAuth } from "./AuthContext";
 
 export default function LoginPage() {
@@ -29,19 +31,24 @@ export default function LoginPage() {
 
   return (
     <div className="auth-page">
+      <div className="auth-theme-toggle">
+        <ThemeToggle />
+      </div>
       <form className="card" onSubmit={handleSubmit}>
         <h1>Folium</h1>
         <p className="muted">Seu caderno na nuvem</p>
         <Input
           type="email"
           placeholder="E-mail"
+          autoComplete="email"
+          autoFocus
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <Input
-          type="password"
+        <PasswordInput
           placeholder="Senha"
+          autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -50,6 +57,9 @@ export default function LoginPage() {
         <Button type="submit" disabled={loading}>
           {loading ? "Entrando..." : "Entrar"}
         </Button>
+        <p>
+          <Link to="/forgot-password">Esqueci minha senha?</Link>
+        </p>
         <p>
           Não tem conta? <Link to="/register">Cadastre-se</Link>
         </p>

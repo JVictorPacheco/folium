@@ -1,11 +1,14 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import { NodeViewWrapper, ReactNodeViewRenderer, type NodeViewProps } from "@tiptap/react";
 
-function PdfEmbedView({ node }: NodeViewProps) {
+function PdfEmbedView({ node, deleteNode }: NodeViewProps) {
   const { src, title } = node.attrs as { src: string; title: string };
   return (
     <NodeViewWrapper className="pdf-embed">
       <iframe src={src} title={title} />
+      <button className="asset-remove" type="button" onClick={deleteNode} title="Remover PDF">
+        ✕
+      </button>
     </NodeViewWrapper>
   );
 }
