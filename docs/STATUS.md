@@ -85,3 +85,12 @@ Regras rápidas:
 - **2026-08-27** — E2E (Playwright) do fluxo principal + fix de página duplicada no reload (PR #6).
 - **2026-08-27** — Refinamento de auth (login/registro) + recuperação de senha: endpoints
   `forgot-password`/`reset-password`, token com validade, `EmailSender` (SMTP) e Mailpit no dev (PR #8).
+- **2026-09-02** — Início do "Refinamento tela a tela" (branch `feature/refinamento-editor`,
+  a partir de `develop`, que estava 30 commits à frente de `main` — release para `main` ainda
+  pendente). Editor: folha com largura limitada, sombra/moldura e margem vermelha (T13.1);
+  toolbar com aparência de botão (T13.2). Corrigido hot-reload do Vite no Docker (bind mount
+  do Windows não disparava HMR sem `usePolling`). SMTP real configurado com Gmail (senha de
+  app) — reset de senha testado de ponta a ponta com entrega em caixa real (T12.7); Mailpit
+  segue como padrão do dev, Gmail via `.env`. T13.3 (links de auth com a paleta do design
+  system) e T13.4 (lista de cadernos revisada — já estava centralizada, sem bug real)
+  concluídos. **Fase 13 completa.**

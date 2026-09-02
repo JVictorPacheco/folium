@@ -74,6 +74,12 @@ individual na nuvem.
   senha (`POST /auth/reset-password`). Resposta genérica no "esqueci minha
   senha" (não revela se o e-mail existe). Entrega via SMTP (`EmailSender` port):
   Mailpit no dev, provedor transacional (Resend/SendGrid/SES) em produção via env.
+- **FR-17**: A folha do editor deve ter largura limitada (como papel real), com
+  moldura/sombra separando-a do fundo da aplicação, em vez de ocupar 100% da tela.
+- **FR-18**: Controles da toolbar do editor devem ter aparência de botão mesmo
+  fora do hover/estado ativo (affordance clara de que são clicáveis).
+- **FR-19**: Links nas telas de autenticação devem seguir a paleta do design
+  system, não a cor padrão do navegador.
 
 ## Requisitos Não-Funcionais
 
@@ -102,3 +108,8 @@ individual na nuvem.
 - [ ] Linhas de caderno visíveis e configuráveis (cor/espaçamento).
 - [ ] Usuário alterna entre tema claro e escuro; no escuro o fundo é preto, as
       linhas do caderno são brancas e o texto é claro por padrão.
+- [ ] A folha do editor tem largura limitada, com moldura/sombra, em vez de
+      ocupar 100% da tela (claro e escuro).
+- [ ] Botões da toolbar do editor têm aparência de botão (borda/fundo sutil)
+      mesmo sem hover.
+- [ ] Links das telas de autenticação usam a paleta do design system.

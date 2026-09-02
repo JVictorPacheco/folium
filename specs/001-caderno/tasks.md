@@ -87,6 +87,25 @@
 - [x] T12.4 Frontend: telas "esqueci senha" e "nova senha" + link no login + rotas
 - [x] T12.5 Testes de reset de senha (backend)
 - [x] T12.6 Envio por SMTP (`SmtpEmailSender`) + Mailpit no dev (caixa de entrada local)
+- [x] T12.7 SMTP real configurado (Gmail com senha de app) — reset de senha
+      testado de ponta a ponta com entrega em caixa real. Credenciais em `.env`
+      (raiz e `backend/.env`, fora do git). Limite ~500 envios/dia.
+
+## Fase 13 — Refinamento tela a tela (UX/visual)
+
+> Revisão visual pós-MVP, tela a tela. Critério de pronto: revisado no navegador
+> (claro + escuro), sem regressão em `vitest`/`tsc`/E2E.
+
+- [x] T13.1 Editor: limitar largura da "folha" (como papel real), com sombra/moldura
+      separando do fundo, ao invés de ocupar 100% da tela. Inclui margem vermelha
+      lateral (clássica de caderno).
+- [x] T13.2 Editor: toolbar com aparência de botão no estado padrão (não só no
+      hover/ativo) e seletor de cor da caneta com moldura.
+- [x] T13.3 Telas de auth: estilizar links (`Cadastre-se`, `Esqueci minha senha?`,
+      `Entrar`) com a paleta do design system em vez da cor azul padrão do navegador.
+- [x] T13.4 Lista de cadernos: revisado — já está centralizada (`max-width: 640px`
+      + `margin: auto`); o espaço vazio visto antes era só efeito de ter poucos
+      cadernos, não um bug de layout. Nenhuma mudança necessária.
 
 ## Grupos paralelos seguros
 
