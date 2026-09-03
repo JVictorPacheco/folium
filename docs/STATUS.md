@@ -62,11 +62,12 @@ e E2E) e CI (GitHub Actions) configurados.
 - ✅ E2E (Playwright) reinstalado e rodando nesta máquina (Chromium do
   Playwright não estava presente; instalado via `npx playwright install`).
 
+- ✅ **Release v0.2.0 em `main`** (PR #15, 2026-09-03): Supabase, tipografia
+  expandida (Fase 14) e mídia embutida (Fase 15).
+
 ### Próximo passo
 
-- Merge da branch `feature/tipografia-expandida` (PR #14, agora com Fase 14
-  e Fase 15) em `develop`.
-- **Refinamento tela a tela**: revisar cada tela e propor melhorias de UX/visual.
+- Definir o próximo foco (backlog abaixo ou novo pedido do usuário).
 - (opcional) Proteção de branch no GitHub (bloquear merge com CI falhando).
 
 ### Fora do MVP (backlog futuro)
@@ -155,3 +156,6 @@ Regras rápidas:
   usuário no navegador; link testado via automação de navegador (Playwright)
   contra o app rodando — abre aba nova de verdade, `href`/`target`/`rel`
   corretos, sobrevive a reload. **Fase 15 completa.**
+- **2026-09-03** — PR #14 mergeada em `develop` (827f0b0). Release **v0.2.0**
+  para `main` (PR #15, merge commit `5a7f6dc`): Supabase, tipografia
+  expandida e mídia embutida. CI verde em `develop` e na PR de release.
