@@ -107,6 +107,19 @@
       + `margin: auto`); o espaço vazio visto antes era só efeito de ter poucos
       cadernos, não um bug de layout. Nenhuma mudança necessária.
 
+## Fase 14 — Tipografia expandida no editor
+
+- [x] T14.1 Extensão `FontSize` (mark inline sobre `TextStyle`, atributo
+      `fontSize`) — aplica a qualquer seleção, sem virar bloco de título.
+- [x] T14.2 Extensão `FontFamily` (`@tiptap/extension-font-family`) com fontes
+      curadas: Kalam (padrão), Caveat, Patrick Hand, Nunito.
+- [x] T14.3 Toolbar: seletor de tamanho ("Pequeno/Normal/Grande/Enorme") e
+      seletor de fonte, com o mesmo estilo visual dos demais controles.
+- [ ] T14.4 Verificação manual: selecionar trecho no meio de uma frase e
+      aplicar tamanho/fonte afeta só o trecho, resto do parágrafo intacto.
+      (T14.1-T14.3 verificados via `tsc --noEmit`, `vitest` e `build`; falta
+      conferência visual no navegador.)
+
 ## Grupos paralelos seguros
 
 - Fase 1: T1.1 ∥ T1.2 ∥ T1.3

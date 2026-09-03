@@ -1,6 +1,6 @@
 # Status do Projeto
 
-> Ponto de retomada. Atualizado em: 2026-08-27.
+> Ponto de retomada. Atualizado em: 2026-09-03.
 
 ## Onde paramos
 
@@ -22,25 +22,39 @@ e E2E) e CI (GitHub Actions) configurados.
   - Login/cadastro, lista de cadernos (criar/renomear/excluir).
   - Editor TipTap: negrito/itálico/sublinhado, cor de caneta, marcação, listas,
     títulos (H1-H3), link, imagem, PDF embutido (node custom).
+  - Tipografia expandida no editor: tamanho de fonte e família de fonte como
+    marcas inline (`FontSize`/`FontFamily`), aplicáveis a qualquer trecho
+    selecionado — independente dos títulos H1-H3, que continuam afetando o
+    parágrafo inteiro (Fase 14).
   - Remover imagem/PDF (botão `✕` sobre o item).
   - Linhas de caderno via CSS + modo de página fixo vs. contínuo + cor da linha.
   - Autosave com debounce + flush no `beforeunload` + indicador de status +
     revision por página (evita conflito `409`).
   - **Modo dark**: `ThemeContext` + toggle, papel preto com linhas e texto claro.
   - **Design system "caderno"**: paleta folha de papel + fontes Kalam/Nunito.
+- **Infra**: `DATABASE_URL` configurável via `.env` da raiz (`docker-compose.yml`)
+  — sem `.env`, usa o Postgres local do compose; com `.env`, aponta pra um
+  Postgres gerenciado (testado com Supabase via Session Pooler).
 
 ### Verificado (automatizado + manual)
 
 - ✅ Backend: **17 testes passando** (`pytest`).
-- ✅ Frontend: **16 testes passando** (`vitest`), `tsc --noEmit` limpo, build OK.
+- ✅ Frontend: **18 testes passando** (`vitest`), `tsc --noEmit` limpo, build OK.
 - ✅ **E2E (Playwright)**: fluxo cadastro → caderno → editar → recarregar passando.
 - ✅ **CI (GitHub Actions)**: `pytest` + `vitest`/`typecheck` rodam a cada PR/push.
 - ✅ `docker compose up --build` completo (db + backend + frontend).
 - ✅ Smoke test manual: cadastro → caderno → editar → recarregar.
 - ✅ Upload real de imagem/PDF pela UI + remover + alternância de tema claro/escuro.
+- ✅ Backend com Supabase (Postgres gerenciado, Session Pooler): migrações,
+  registro/login e persistência testados de ponta a ponta.
+- ⏳ Tipografia expandida (Fase 14): verificado por tipos/testes/build; falta
+  conferência visual manual (T14.4) — selecionar trecho no meio de uma frase
+  e confirmar que só ele muda de tamanho/fonte.
 
 ### Próximo passo
 
+- **Fase 14 (tipografia expandida)**: conferência visual manual (T14.4) e
+  merge da branch `feature/tipografia-expandida` em `develop`.
 - **Refinamento tela a tela**: revisar cada tela e propor melhorias de UX/visual.
 - (opcional) Proteção de branch no GitHub (bloquear merge com CI falhando).
 
@@ -94,3 +108,16 @@ Regras rápidas:
   segue como padrão do dev, Gmail via `.env`. T13.3 (links de auth com a paleta do design
   system) e T13.4 (lista de cadernos revisada — já estava centralizada, sem bug real)
   concluídos. **Fase 13 completa.**
+- **2026-09-03** — PR #13 mergeada em `develop`: `DATABASE_URL` configurável via
+  `.env` da raiz no `docker-compose.yml` (`${DATABASE_URL:-...}`), sem mudar o
+  comportamento padrão. Testado com Supabase (Postgres gerenciado, Session
+  Pooler) — migrações, registro/login e persistência OK.
+- **2026-09-03** — Início da Fase 14 (tipografia expandida no editor, branch
+  `feature/tipografia-expandida`): extensão `FontSize` (mark inline sobre
+  `textStyle`, própria) e `FontFamily` (`@tiptap/extension-font-family`) com
+  fontes curadas (Kalam, Caveat, Patrick Hand, Nunito); seletores na toolbar.
+  Resolve a limitação de H1-H3 (nó de bloco) não servir pra aumentar só um
+  trecho selecionado — tamanho/fonte agora são marcas inline, como bold/cor.
+  FR-20/FR-21 e Fase 14 registrados em `spec.md`/`tasks.md`. Verificado:
+  `tsc --noEmit` limpo, 18 testes frontend passando, build OK; falta
+  conferência visual manual (T14.4).

@@ -80,6 +80,12 @@ individual na nuvem.
   fora do hover/estado ativo (affordance clara de que são clicáveis).
 - **FR-19**: Links nas telas de autenticação devem seguir a paleta do design
   system, não a cor padrão do navegador.
+- **FR-20**: Tamanho de fonte é uma marca inline (aplicável a qualquer trecho
+  selecionado, como bold/cor), não um estilo de bloco — diferente de título
+  (H1-H3), que sempre afeta o parágrafo inteiro.
+- **FR-21**: Fonte do texto é uma marca inline selecionável entre um conjunto
+  curado (Kalam, Caveat, Patrick Hand, Nunito), aplicável a qualquer trecho
+  selecionado.
 
 ## Requisitos Não-Funcionais
 

@@ -2,6 +2,7 @@ import { useRef, type ChangeEvent } from "react";
 import type { Editor } from "@tiptap/react";
 
 import { uploadAsset } from "../../api/client";
+import { FONT_FAMILIES, FONT_SIZES } from "./extensions";
 
 export default function Toolbar({ editor }: { editor: Editor }) {
   const imageInput = useRef<HTMLInputElement>(null);
@@ -80,6 +81,43 @@ export default function Toolbar({ editor }: { editor: Editor }) {
       <button className={cls(editor.isActive("highlight"))} onClick={() => editor.chain().focus().toggleHighlight().run()} title="Marcador">
         Marca
       </button>
+
+      <span className="separator" />
+
+      <select
+        className="toolbar-select"
+        title="Fonte do trecho selecionado"
+        value={editor.getAttributes("textStyle").fontFamily ?? ""}
+        onChange={(e) => {
+          const value = e.target.value;
+          if (value) editor.chain().focus().setFontFamily(value).run();
+          else editor.chain().focus().unsetFontFamily().run();
+        }}
+      >
+        <option value="">Fonte</option>
+        {FONT_FAMILIES.map((f) => (
+          <option key={f.value} value={f.value}>
+            {f.label}
+          </option>
+        ))}
+      </select>
+
+      <select
+        className="toolbar-select"
+        title="Tamanho do trecho selecionado"
+        value={editor.getAttributes("textStyle").fontSize ?? ""}
+        onChange={(e) => {
+          const value = e.target.value;
+          if (value) editor.chain().focus().setFontSize(value).run();
+          else editor.chain().focus().unsetFontSize().run();
+        }}
+      >
+        {FONT_SIZES.map((s) => (
+          <option key={s.label} value={s.value}>
+            {s.label}
+          </option>
+        ))}
+      </select>
 
       <span className="separator" />
 

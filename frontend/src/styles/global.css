@@ -502,6 +502,22 @@ a:visited {
   font-weight: 700;
 }
 
+.toolbar-select {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 0.3rem 0.4rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--ink);
+  font-family: "Nunito", sans-serif;
+  max-width: 8rem;
+}
+
+.toolbar-select:hover {
+  border-color: var(--accent);
+}
+
 .color-input {
   width: 20px;
   height: 20px;
