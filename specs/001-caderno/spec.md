@@ -47,6 +47,12 @@ individual na nuvem.
     parecendo um caderno preto real (fundo preto, linhas brancas, texto claro).
 11. Como usuário, quero recuperar minha senha caso esqueça (receber um link de
     reset por e-mail e definir uma nova senha).
+12. Como usuário, quero redimensionar imagens e PDFs inseridos na página,
+    arrastando um cantinho.
+13. Como usuário, quero mover imagens e PDFs livremente pela página, arrastando
+    por uma alça, saindo do fluxo do texto se eu quiser.
+14. Como usuário, quero que um link inserido seja de fato clicável (abre a URL),
+    com um estilo padronizado em vez da formatação crua do navegador.
 
 ## Requisitos Funcionais
 
@@ -80,6 +86,26 @@ individual na nuvem.
   fora do hover/estado ativo (affordance clara de que são clicáveis).
 - **FR-19**: Links nas telas de autenticação devem seguir a paleta do design
   system, não a cor padrão do navegador.
+- **FR-20**: Tamanho de fonte é uma marca inline (aplicável a qualquer trecho
+  selecionado, como bold/cor), não um estilo de bloco — diferente de título
+  (H1-H3), que sempre afeta o parágrafo inteiro.
+- **FR-21**: Fonte do texto é uma marca inline selecionável entre um conjunto
+  curado (Kalam, Caveat, Patrick Hand, Nunito), aplicável a qualquer trecho
+  selecionado.
+- **FR-22**: Imagem inserida pode ser redimensionada arrastando uma alça no
+  cantinho, mantendo a proporção original (largura/altura travadas).
+- **FR-23**: PDF inserido pode ser redimensionado arrastando uma alça no
+  cantinho, com largura e altura ajustáveis de forma independente (sem travar
+  proporção).
+- **FR-24**: Imagem e PDF inseridos podem ser movidos livremente pela página
+  (arrastar por uma alça dedicada de "mover"), saindo do fluxo normal do
+  texto e podendo se sobrepor a ele. Posição e tamanho persistem via autosave
+  (atributos do nó no `content_json`, sem mudança de schema no backend).
+  Reverter para o fluxo original, se o usuário arrastar por engano, é feito
+  via desfazer (Ctrl+Z) — sem um botão dedicado nesta versão.
+- **FR-25**: Link inserido é clicável (abre a URL numa nova aba) e usa um
+  estilo visual padronizado (sublinhado, cor de acento, cursor de ponteiro),
+  em vez de depender da formatação padrão do navegador.
 
 ## Requisitos Não-Funcionais
 
@@ -113,3 +139,9 @@ individual na nuvem.
 - [ ] Botões da toolbar do editor têm aparência de botão (borda/fundo sutil)
       mesmo sem hover.
 - [ ] Links das telas de autenticação usam a paleta do design system.
+- [ ] Arrastar o cantinho de uma imagem redimensiona mantendo a proporção; o
+      mesmo gesto num PDF ajusta largura/altura de forma independente.
+- [ ] Arrastar a alça de mover tira a imagem/PDF do fluxo do texto e permite
+      posicioná-la livremente na página; a posição/tamanho persistem após recarregar.
+- [ ] Clicar num link inserido no editor abre a URL numa nova aba, com
+      sublinhado/cor de acento/cursor de ponteiro visíveis.

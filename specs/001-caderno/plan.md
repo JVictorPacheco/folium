@@ -10,10 +10,10 @@
 | Backend | Python 3.12 + FastAPI + Uvicorn (ASGI) |
 | ORM/Migrations | SQLAlchemy 2.0 (async) + Alembic |
 | Validação | Pydantic v2 |
-| Banco | PostgreSQL 16 (JSONB para conteúdo) |
+| Banco | PostgreSQL 16 (JSONB para conteúdo); local via Docker Compose por padrão, ou gerenciado (ex.: Supabase) via `DATABASE_URL` |
 | Auth | JWT (`python-jose`) + bcrypt (`passlib`) |
 | Frontend | React 18 + TypeScript + Vite |
-| Editor | TipTap (@tiptap/react + StarterKit + Color + Highlight + Link + Image) |
+| Editor | TipTap (@tiptap/react + StarterKit + Color + Highlight + Link + Image + FontFamily + FontSize) |
 | Estado/Servidor | TanStack Query (dados) + Zustand (UI) |
 | Testes | pytest (back) / vitest + Testing Library (front) |
 | Container | Docker + Docker Compose |
@@ -133,3 +133,46 @@ assets(id PK, user_id FK->users ON DELETE CASCADE,
 - **Cor da linha**: input de cor no editor que faz `PATCH line_color`. O valor
   default `#9db3c8` é tratado como "auto" (segue o tema); valores customizados
   valem nos dois temas.
+
+## Tipografia expandida (Fase 14)
+
+- **`FontSize`**: extensão própria (`Extension.create`), adiciona o atributo
+  `fontSize` à marca `textStyle` já usada pelo `Color`. Mesmo mecanismo de
+  bold/cor — aplica a qualquer seleção via `chain().setMark("textStyle", ...)`.
+- **`FontFamily`**: pacote oficial `@tiptap/extension-font-family`, também
+  sobre `textStyle`. Fontes curadas: Kalam (padrão), Caveat, Patrick Hand,
+  Nunito — carregadas via Google Fonts em `index.html`.
+- **Por que marca, não bloco**: título (H1-H3) é um nó de bloco no ProseMirror
+  — sempre afeta o parágrafo inteiro. Tamanho/fonte precisavam funcionar em
+  qualquer trecho selecionado dentro de uma frase, então são marcas inline
+  (como bold/itálico/cor), não uma variação de heading.
+- **Toolbar**: dois `<select>` nativos (fonte, tamanho), mesmo estilo visual
+  dos demais controles.
+
+## Mídia embutida: redimensionar, mover e link clicável (Fase 15)
+
+- **Atributos de posição/tamanho**: `width`, `height`, `x`, `y` (px, nullable)
+  adicionados aos nós `Image` (extend) e `PdfEmbed`. Por serem atributos de
+  nó do ProseMirror, persistem automaticamente no `content_json` via
+  `editor.getJSON()` — sem qualquer mudança no backend/schema.
+- **`ResizableEmbed`**: componente React compartilhado entre `ImageView` e
+  `PdfEmbedView`, com duas alças:
+  - **Mover** (canto superior esquerdo, ícone de grip): ao arrastar, o nó sai
+    do fluxo do documento (`position: absolute`), ancorado em `.paper-lines`
+    (já `position: relative`), e passa a flutuar livremente sobre a página,
+    podendo se sobrepor ao texto.
+  - **Redimensionar** (canto inferior direito): ajusta `width`/`height`.
+    Imagem trava proporção (`lockAspect: true`); PDF ajusta largura/altura
+    de forma independente (`lockAspect: false`).
+- **Performance do arrasto**: durante o `mousemove`, o estilo é aplicado
+  direto no DOM (sem disparar transação do ProseMirror a cada pixel); os
+  atributos do nó (`updateAttributes`) — e por consequência o autosave — só
+  são gravados no `mouseup`, ao soltar o mouse.
+- **Antes de mover/redimensionar** (atributos ainda `null`): renderiza como
+  hoje, dentro do fluxo normal do texto, sem `position: absolute`.
+- **Reverter**: não há um botão dedicado para "voltar ao fluxo" nesta versão
+  — desfazer com Ctrl+Z (histórico nativo do ProseMirror) resolve.
+- **Link**: `openOnClick: true` no `@tiptap/extension-link` (antes era
+  `false`), abrindo a URL em nova aba (`target="_blank"`,
+  `rel="noopener noreferrer"`) com estilo padronizado (sublinhado, cor de
+  acento, cursor pointer) em vez do estilo cru do navegador.

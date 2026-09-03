@@ -22,6 +22,11 @@ docker compose up --build
 
 O backend roda `alembic upgrade head` automaticamente no start.
 
+Por padrão o backend usa o Postgres do container `db`. Para apontar para um
+Postgres gerenciado (ex.: Supabase, via Session Pooler), defina `DATABASE_URL`
+num `.env` na raiz do projeto (mesmo formato do `backend/.env.example`) antes
+de subir o compose — sem `.env`, nada muda.
+
 ## Executando sem Docker (desenvolvimento)
 
 Backend (requer Python 3.12 e Postgres):
