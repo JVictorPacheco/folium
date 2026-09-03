@@ -30,7 +30,23 @@ export default function Toolbar({ editor }: { editor: Editor }) {
 
   function setLink() {
     const href = window.prompt("URL do link:");
-    if (href) editor.chain().focus().setLink({ href }).run();
+    if (!href) return;
+    if (editor.state.selection.empty) {
+      // Sem texto selecionado: o link em cima de "nada" não aparece na
+      // página, então insere a própria URL como texto clicável. O espaço
+      // sem marca depois evita que o cursor "herde" o link ao continuar
+      // digitando (a marca é inclusiva por causa do autolink).
+      editor
+        .chain()
+        .focus()
+        .insertContent([
+          { type: "text", text: href, marks: [{ type: "link", attrs: { href } }] },
+          { type: "text", text: " " },
+        ])
+        .run();
+    } else {
+      editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
+    }
   }
 
   const cls = (active: boolean) => `toolbar-btn${active ? " active" : ""}`;

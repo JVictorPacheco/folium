@@ -33,7 +33,11 @@ export const editorExtensions = [
   FontFamily,
   FontSize,
   Highlight.configure({ multicolor: true }),
-  Link.configure({ openOnClick: false, autolink: true }),
+  Link.configure({
+    openOnClick: true,
+    autolink: true,
+    HTMLAttributes: { target: "_blank", rel: "noopener noreferrer" },
+  }),
   ImageEmbed.configure({ inline: false }),
   Placeholder.configure({ placeholder: "Escreva aqui..." }),
   PdfEmbed,
