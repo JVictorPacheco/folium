@@ -107,6 +107,54 @@
       + `margin: auto`); o espaço vazio visto antes era só efeito de ter poucos
       cadernos, não um bug de layout. Nenhuma mudança necessária.
 
+## Fase 14 — Tipografia expandida no editor
+
+- [x] T14.1 Extensão `FontSize` (mark inline sobre `TextStyle`, atributo
+      `fontSize`) — aplica a qualquer seleção, sem virar bloco de título.
+- [x] T14.2 Extensão `FontFamily` (`@tiptap/extension-font-family`) com fontes
+      curadas: Kalam (padrão), Caveat, Patrick Hand, Nunito.
+- [x] T14.3 Toolbar: seletor de tamanho ("Pequeno/Normal/Grande/Enorme") e
+      seletor de fonte, com o mesmo estilo visual dos demais controles.
+- [x] T14.4 Verificação manual: selecionar trecho no meio de uma frase e
+      aplicar tamanho/fonte afeta só o trecho, resto do parágrafo intacto.
+      Confirmado pelo usuário no navegador em 2026-09-03. **Fase 14 completa.**
+
+## Fase 15 — Mídia embutida: redimensionar, mover e link clicável
+
+> Decisões de UX (2026-09-03): redimensionar imagem trava proporção (PDF não);
+> voltar do modo flutuante pro fluxo do texto é via Ctrl+Z nesta versão, sem
+> botão dedicado.
+
+- [x] T15.1 Atributos `width`/`height`/`x`/`y` (px, nullable) nos nós `Image`
+      (via `.extend()`) e `PdfEmbed`.
+- [x] T15.2 Componente compartilhado `ResizableEmbed`: alça de mover (arrasta
+      posição) + alça de redimensionar (arrasta tamanho); atualiza o DOM
+      direto durante o arrasto e só grava os atributos do nó (via
+      `updateAttributes`) no `mouseup`, pra não disparar autosave a cada pixel.
+      Inclui "escudo" transparente sobre o conteúdo durante o arrasto (o
+      `<iframe>` do PDF captura eventos de mouse e engasgava o rastreamento)
+      e limpeza dos listeners de `window` se o node view desmontar no meio
+      de um arrasto.
+- [x] T15.3 Integrar `ResizableEmbed` no `ImageView` (`lockAspect: true`) e no
+      `PdfEmbedView` (`lockAspect: false`).
+- [x] T15.4 CSS das alças (mover/redimensionar, visíveis no hover) + wrapper
+      `position: absolute` relativo a `.paper-lines` (já `position: relative`)
+      quando o nó estiver "flutuante" (`x`/`y` definidos).
+- [x] T15.5 Link: `openOnClick: true` no `@tiptap/extension-link`
+      (`target="_blank"`, `rel="noopener noreferrer"`) + estilo padronizado
+      (sublinhado, cor de acento, cursor pointer) em `.ProseMirror a`. Corrigido
+      também: inserir link sem texto selecionado não aparecia (marca em cima de
+      seleção vazia); e a marca "grudava" em texto digitado logo depois do link
+      (mark inclusiva por causa do `autolink`) — resolvido inserindo um espaço
+      neutro após o link.
+- [x] T15.6 Verificação manual: redimensionar imagem mantém proporção;
+      redimensionar PDF permite largura/altura independentes; mover
+      imagem/PDF pela página; posição/tamanho sobrevivem a um recarregamento;
+      clicar em link abre em nova aba. Confirmado pelo usuário no navegador e
+      re-testado via automação (Playwright): link com/sem seleção, `href`/
+      `target`/`rel` corretos, abre aba nova de fato, texto após o link não
+      herda a marca, e persiste após reload. **Fase 15 completa.**
+
 ## Grupos paralelos seguros
 
 - Fase 1: T1.1 ∥ T1.2 ∥ T1.3
