@@ -18,7 +18,7 @@ services:
   backend:
     build: ./backend
     environment:
-      DATABASE_URL: postgresql+asyncpg://folium:folium@db:5432/folium
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://folium:folium@db:5432/folium}
       JWT_SECRET_KEY: dev-secret-change-me
       SMTP_HOST: ${SMTP_HOST:-mailpit}
       SMTP_PORT: ${SMTP_PORT:-1025}
