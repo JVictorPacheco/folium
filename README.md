@@ -1,8 +1,10 @@
 # Folium
 
 Caderno digital na nuvem: páginas com linhas simulando um caderno real,
-formatação rica (cor de caneta, marcação, negrito, listas, títulos), inserção
-de imagens, links e PDFs, com autenticação e sincronização individual.
+formatação rica (cor de caneta, marcação, negrito, listas, títulos, tamanho e
+família de fonte), inserção de imagens, links e PDFs — redimensionáveis e
+movíveis pela página —, exportação do caderno completo em PDF preservando a
+aparência do papel, com autenticação e sincronização individual.
 
 ## Stack
 
