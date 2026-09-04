@@ -204,10 +204,10 @@
       (`#root`) com `display: none` e `checkVisibility() === false` em modo
       impressão; `#print-root` visível; `page-break-after` correto (`page`
       em todas menos a última); `print-color-adjust: exact` aplicado;
-      screenshot confirmou papel/linhas/margem vermelha visíveis. **Falta
-      confirmação do usuário no navegador** (perspectiva de um PDF real via
-      "Salvar como PDF" no diálogo de impressão, e o placeholder do PDF
-      embutido com um arquivo real — não testado por automação).
+      screenshot confirmou papel/linhas/margem vermelha visíveis. Placeholder
+      do PDF embutido testado depois com um arquivo real, mostrando o nome
+      correto ("📄 relatorio.pdf") na exportação. Confirmado pelo usuário no
+      navegador. **Fase 16 completa.**
 
 ## Grupos paralelos seguros
 

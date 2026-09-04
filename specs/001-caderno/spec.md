@@ -140,27 +140,27 @@ individual na nuvem.
 
 ## Critérios de Aceitação
 
-- [ ] Um usuário novo consegue cadastrar, logar e criar um caderno.
-- [ ] Usuário A não consegue acessar cadernos/páginas do usuário B (HTTP 403/404).
-- [ ] Digitar com formatação (bold, cor, marcação) reflete no JSON persistido e reabre igual.
-- [ ] Imagem e PDF enviados aparecem embutidos na página após recarregar.
-- [ ] Autosave persiste a última edição mesmo com refresh imediato após digitar.
-- [ ] Caderno alterna entre modo de páginas fixas e rolagem contínua.
-- [ ] Linhas de caderno visíveis e configuráveis (cor/espaçamento).
-- [ ] Usuário alterna entre tema claro e escuro; no escuro o fundo é preto, as
+- [x] Um usuário novo consegue cadastrar, logar e criar um caderno.
+- [x] Usuário A não consegue acessar cadernos/páginas do usuário B (HTTP 403/404).
+- [x] Digitar com formatação (bold, cor, marcação) reflete no JSON persistido e reabre igual.
+- [x] Imagem e PDF enviados aparecem embutidos na página após recarregar.
+- [x] Autosave persiste a última edição mesmo com refresh imediato após digitar.
+- [x] Caderno alterna entre modo de páginas fixas e rolagem contínua.
+- [x] Linhas de caderno visíveis e configuráveis (cor/espaçamento).
+- [x] Usuário alterna entre tema claro e escuro; no escuro o fundo é preto, as
       linhas do caderno são brancas e o texto é claro por padrão.
-- [ ] A folha do editor tem largura limitada, com moldura/sombra, em vez de
+- [x] A folha do editor tem largura limitada, com moldura/sombra, em vez de
       ocupar 100% da tela (claro e escuro).
-- [ ] Botões da toolbar do editor têm aparência de botão (borda/fundo sutil)
+- [x] Botões da toolbar do editor têm aparência de botão (borda/fundo sutil)
       mesmo sem hover.
-- [ ] Links das telas de autenticação usam a paleta do design system.
-- [ ] Arrastar o cantinho de uma imagem redimensiona mantendo a proporção; o
+- [x] Links das telas de autenticação usam a paleta do design system.
+- [x] Arrastar o cantinho de uma imagem redimensiona mantendo a proporção; o
       mesmo gesto num PDF ajusta largura/altura de forma independente.
-- [ ] Arrastar a alça de mover tira a imagem/PDF do fluxo do texto e permite
+- [x] Arrastar a alça de mover tira a imagem/PDF do fluxo do texto e permite
       posicioná-la livremente na página; a posição/tamanho persistem após recarregar.
-- [ ] Clicar num link inserido no editor abre a URL numa nova aba, com
+- [x] Clicar num link inserido no editor abre a URL numa nova aba, com
       sublinhado/cor de acento/cursor de ponteiro visíveis.
-- [ ] "Exportar PDF" abre o diálogo de impressão nativo com uma prévia de
+- [x] "Exportar PDF" abre o diálogo de impressão nativo com uma prévia de
       todas as páginas do caderno, uma por página, linhas de fundo visíveis.
-- [ ] PDF gerado preserva formatação rica (negrito, cor, tamanho/fonte) e
+- [x] PDF gerado preserva formatação rica (negrito, cor, tamanho/fonte) e
       imagem/PDF redimensionados; sem a interface do app (toolbar/sidebar).

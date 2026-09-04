@@ -74,17 +74,24 @@ e E2E) e CI (GitHub Actions) configurados.
   app (`#root`) invisível em modo impressão (`display: none`,
   `checkVisibility() === false`), `#print-root` visível; quebra de página
   correta; `print-color-adjust: exact` aplicado; screenshot confirmou
-  papel/linhas/margem vermelha visíveis. Falta confirmação do usuário no
-  navegador (T16.6) — ver "Próximo passo".
+  papel/linhas/margem vermelha visíveis; placeholder do PDF embutido
+  testado com arquivo real ("📄 relatorio.pdf"). Confirmado pelo usuário no
+  navegador.
+- ✅ **Release v0.3.0 em `main`** (PR #18, 2026-09-04): Exportar PDF (Fase 16).
+- ✅ Regressão pós-Fase 16: revisão do diff completo (mudanças em
+  `ImageEmbed`/`PdfEmbed` só afetam `renderHTML`, não o NodeView React usado
+  na edição ao vivo; CSS de impressão isolado em `@media print`/
+  `#print-root`; `editor.getHTML()` não é usado em nenhum outro lugar do
+  app). Suíte completa rodada de novo do zero na `main` (backend 21,
+  frontend 18, `tsc`, build, E2E) — tudo verde. Testado ao vivo no
+  navegador: imagem e PDF (com upload real de cada) continuam renderizando
+  como `<img>`/`<iframe>` de verdade no editor, com as alças de
+  mover/redimensionar, coexistindo na mesma página e sobrevivendo a reload.
+  Nenhuma regressão encontrada.
 
 ### Próximo passo
 
-- **Fase 16 (exportar PDF)**: você conferir no navegador — clicar
-  "Exportar PDF" no editor, "Salvar como PDF" no diálogo de impressão, e
-  abrir o arquivo gerado. Vale testar também com um PDF real embutido (o
-  placeholder "📄 nome do arquivo" não foi testado com upload real, só via
-  revisão de código).
-- Definir o próximo foco depois disso (backlog abaixo ou novo pedido).
+- Definir o próximo foco (backlog abaixo ou novo pedido do usuário).
 - (opcional) Proteção de branch no GitHub (bloquear merge com CI falhando).
 
 ### Fora do MVP (backlog futuro)
@@ -193,5 +200,20 @@ Regras rápidas:
   exportadas corretamente, `width`/`font-family`/`font-size` aplicados no
   HTML, UI do app escondida em modo impressão, quebra de página e
   `print-color-adjust` corretos. `tsc --noEmit` limpo, 18 testes frontend +
-  21 backend, build OK, E2E verde. Falta confirmação do usuário no
-  navegador (T16.6).
+  21 backend, build OK, E2E verde. Placeholder do PDF embutido testado
+  depois com arquivo real. Confirmado pelo usuário no navegador. **Fase 16
+  completa.**
+- **2026-09-04** — PR #17 mergeada em `develop` (8390516). Release **v0.3.0**
+  para `main` (PR #18, merge commit `556038a`): exportar caderno como PDF.
+  CI verde em `develop` e na PR de release.
+- **2026-09-04** — Regressão pós-Fase 16 (a pedido do usuário): revisão do
+  diff completo (mudanças em `ImageEmbed`/`PdfEmbed` só afetam `renderHTML`,
+  usado apenas na exportação — não o NodeView React da edição ao vivo, nem
+  qualquer outro código do app, já que `editor.getHTML()`/`generateHTML`
+  não são usados em mais nenhum lugar; CSS de impressão isolado em
+  `@media print`/`#print-root`, sem vazar pra tela normal). Suíte completa
+  rodada de novo do zero na `main` (backend 21, frontend 18, `tsc`, build,
+  E2E) — tudo verde. Testado ao vivo no navegador: imagem e PDF (upload
+  real de cada) continuam como `<img>`/`<iframe>` de verdade no editor, com
+  as alças de mover/redimensionar, coexistindo na mesma página e
+  sobrevivendo a reload. Nenhuma regressão encontrada.
