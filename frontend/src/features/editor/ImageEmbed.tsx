@@ -42,10 +42,22 @@ export const ImageEmbed = Image.extend({
   addAttributes() {
     return {
       ...this.parent?.(),
-      width: { default: null },
-      height: { default: null },
-      x: { default: null },
-      y: { default: null },
+      width: {
+        default: null,
+        // Aplica o tamanho redimensionado como style no HTML estático
+        // (usado na exportação em PDF, que não passa pelo NodeView React).
+        renderHTML: (attributes) => {
+          if (attributes.width == null) return {};
+          return { style: `width: ${attributes.width}px` };
+        },
+      },
+      // height não é renderizado à parte: imagem trava proporção (largura
+      // controla, altura acompanha automaticamente).
+      height: { default: null, renderHTML: () => ({}) },
+      // Posição flutuante (Fase 15) é só para a edição ao vivo — a
+      // exportação em PDF sempre segue o fluxo normal do documento (FR-28).
+      x: { default: null, renderHTML: () => ({}) },
+      y: { default: null, renderHTML: () => ({}) },
     };
   },
   addNodeView() {

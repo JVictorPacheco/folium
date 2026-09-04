@@ -10,6 +10,7 @@ import { useAutosave, type AutosaveStatus } from "../../hooks/useAutosave";
 import { Button } from "../../components/Button";
 import ThemeToggle from "../../components/ThemeToggle";
 import { editorExtensions } from "./extensions";
+import { exportNotebookPdf } from "./exportPdf";
 import Toolbar from "./Toolbar";
 
 const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
@@ -150,6 +151,25 @@ export default function EditorPage() {
     createPage.mutate();
   }
 
+  const [exporting, setExporting] = useState(false);
+
+  async function handleExportPdf() {
+    if (!notebook || exporting) return;
+    setExporting(true);
+    try {
+      await flush();
+      // `pages` (cache do React Query) só é atualizado na criação/exclusão
+      // de página, não a cada autosave — busca direto do servidor (sem
+      // passar pelo cache/`qc`, pra não notificar o `useQuery` de `pages`
+      // no meio da mesma renderização) pra não exportar conteúdo
+      // desatualizado de páginas editadas antes na mesma sessão.
+      const freshPages = await api.get<Page[]>(`/api/v1/notebooks/${notebookId}/pages`);
+      exportNotebookPdf(notebook, freshPages);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   const lineSpacing = notebook?.line_spacing ?? 28;
   const [lineColorDraft, setLineColorDraft] = useState<string | null>(null);
   const customLineColor =
@@ -181,6 +201,9 @@ export default function EditorPage() {
             }}
           />
         </label>
+        <Button onClick={handleExportPdf} disabled={exporting}>
+          {exporting ? "Exportando..." : "Exportar PDF"}
+        </Button>
         <ThemeToggle />
         <span className={`save-status save-status--${status}`}>{STATUS_LABEL[status]}</span>
       </header>

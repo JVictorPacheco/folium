@@ -53,6 +53,8 @@ individual na nuvem.
     por uma alça, saindo do fluxo do texto se eu quiser.
 14. Como usuário, quero que um link inserido seja de fato clicável (abre a URL),
     com um estilo padronizado em vez da formatação crua do navegador.
+15. Como usuário, quero exportar meu caderno inteiro como PDF, mantendo a
+    aparência das linhas e do papel, para ter uma cópia autêntica fora do app.
 
 ## Requisitos Funcionais
 
@@ -106,6 +108,19 @@ individual na nuvem.
 - **FR-25**: Link inserido é clicável (abre a URL numa nova aba) e usa um
   estilo visual padronizado (sublinhado, cor de acento, cursor de ponteiro),
   em vez de depender da formatação padrão do navegador.
+- **FR-26**: Exportar o caderno completo (todas as páginas, na ordem) como
+  PDF via impressão nativa do navegador — botão "Exportar PDF" na tela do
+  editor aciona `window.print()` numa view dedicada de impressão, sem
+  depender de um serviço novo no backend.
+- **FR-27**: A view de impressão preserva a identidade visual do caderno
+  (linhas de fundo, cor de linha configurada, fontes, formatação rica,
+  tamanho/família de fonte) — cada página do caderno vira uma página do PDF
+  (quebra de página entre elas), e a interface do app (topbar, sidebar,
+  toolbar) não aparece no resultado.
+- **FR-28**: Imagem e PDF embutidos aparecem na exportação respeitando o
+  tamanho definido (se redimensionados), sempre no fluxo normal do
+  documento — a posição "flutuante" (FR-24) não é preservada na impressão
+  nesta versão.
 
 ## Requisitos Não-Funcionais
 
@@ -145,3 +160,7 @@ individual na nuvem.
       posicioná-la livremente na página; a posição/tamanho persistem após recarregar.
 - [ ] Clicar num link inserido no editor abre a URL numa nova aba, com
       sublinhado/cor de acento/cursor de ponteiro visíveis.
+- [ ] "Exportar PDF" abre o diálogo de impressão nativo com uma prévia de
+      todas as páginas do caderno, uma por página, linhas de fundo visíveis.
+- [ ] PDF gerado preserva formatação rica (negrito, cor, tamanho/fonte) e
+      imagem/PDF redimensionados; sem a interface do app (toolbar/sidebar).
