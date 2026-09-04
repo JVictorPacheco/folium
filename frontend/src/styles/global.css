@@ -439,6 +439,25 @@ a:visited {
   display: block;
 }
 
+/* Placeholder do PDF fora da edição ao vivo (exportação em PDF) — o
+   NodeView React (iframe de verdade) só existe no editor. */
+.pdf-embed-static {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 480px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: "Nunito", sans-serif;
+  font-size: 0.95rem;
+  margin: 0.5rem 0;
+  overflow: hidden;
+  text-align: center;
+  padding: 1rem;
+}
+
 .asset-remove {
   position: absolute;
   top: 0.6rem;
@@ -630,5 +649,42 @@ a:visited {
 
 .theme-toggle {
   font-size: 1.1rem;
+}
+
+/* Exportar PDF — view de impressão (fora da tela, só existe durante o print) */
+#print-root {
+  display: none;
+}
+
+@media print {
+  body > *:not(#print-root) {
+    display: none !important;
+  }
+
+  #print-root {
+    display: block !important;
+  }
+
+  #print-root .print-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  #print-root .print-sheet:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  #print-root * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
 }
 

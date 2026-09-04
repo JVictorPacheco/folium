@@ -155,6 +155,60 @@
       `target`/`rel` corretos, abre aba nova de fato, texto após o link não
       herda a marca, e persiste após reload. **Fase 15 completa.**
 
+## Fase 16 — Exportar caderno como PDF
+
+> Decisão de arquitetura (2026-09-04): impressão nativa do navegador
+> (`window.print()`), não geração no backend — zero dependência nova pesada,
+> mesma aparência (mesmo CSS das linhas), só frontend. Escopo: caderno
+> inteiro (todas as páginas), não só a página atual.
+>
+> Decisão de implementação (2026-09-04, durante T16.2): a ideia inicial era
+> usar o pacote `@tiptap/html` (`generateHTML`). Testado e **descartado**:
+> ele serializa num DOM headless (`zeed-dom`), que não sincroniza
+> `element.style.cssText` de volta pro atributo `style` — toda formatação
+> baseada em `style` (cor, fonte, tamanho, largura de imagem) saía sem
+> efeito no HTML exportado, confirmado com um teste isolado antes de mudar
+> de abordagem. Como o app roda só no navegador, a correção foi usar o
+> `DOMSerializer` do ProseMirror (`@tiptap/pm/model`, já dependência
+> transitiva) direto com o `document` real — sem precisar de dependência
+> nova nenhuma.
+
+- [x] T16.1 `renderHTML` explícito de `width`/`height` em `ImageEmbed` e
+      `PdfEmbed` (aplica o tamanho redimensionado como `style` no HTML
+      estático). `x`/`y` (posição flutuante) não entra no `renderHTML` —
+      export sempre segue o fluxo normal do documento. `PdfEmbed` também
+      ganhou um placeholder visual ("📄 nome do arquivo", classe
+      `pdf-embed-static`) pro `renderHTML` — antes era uma `<div>` vazia sem
+      conteúdo, invisível fora do NodeView React (só usado no editor).
+- [x] T16.2 Util `pageHtml(page)`: gera o HTML de cada página via
+      `DOMSerializer` (`@tiptap/pm/model`) + `getSchema(editorExtensions)`,
+      passando o `document` real do navegador. **Não** usar `@tiptap/html`
+      (testado e descartado — ver decisão acima).
+- [x] T16.3 View de impressão: monta `.paper`/`.paper-lines` por página
+      (linhas, cor, fontes) com o HTML gerado, uma por página do caderno.
+- [x] T16.4 CSS de impressão (`@media print`): esconde topbar/sidebar/
+      toolbar, `print-color-adjust: exact` nas linhas do papel, quebra de
+      página (`page-break-after`) entre páginas do caderno.
+- [x] T16.5 Botão "Exportar PDF" no topbar do editor: `flush()` do autosave
+      → busca páginas frescas do servidor (não do cache do React Query, pra
+      não exportar conteúdo desatualizado de páginas editadas antes na
+      mesma sessão — e pra não notificar o `useQuery` de `pages` no meio da
+      mesma renderização) → monta view de impressão → `window.print()` →
+      desmonta em `afterprint`.
+- [x] T16.6 Verificação automatizada (Playwright, contra o app rodando):
+      caderno com 2 páginas, título H1, imagem redimensionada, link, texto
+      com fonte/tamanho customizados. Confirmado: `#print-root` com 2
+      `.print-sheet` (uma por página); `<img style="width: ...">` e
+      `<span style="font-family: ...; font-size: ...">` corretos no HTML
+      exportado (só funcionaram depois da correção do T16.2); UI do app
+      (`#root`) com `display: none` e `checkVisibility() === false` em modo
+      impressão; `#print-root` visível; `page-break-after` correto (`page`
+      em todas menos a última); `print-color-adjust: exact` aplicado;
+      screenshot confirmou papel/linhas/margem vermelha visíveis. **Falta
+      confirmação do usuário no navegador** (perspectiva de um PDF real via
+      "Salvar como PDF" no diálogo de impressão, e o placeholder do PDF
+      embutido com um arquivo real — não testado por automação).
+
 ## Grupos paralelos seguros
 
 - Fase 1: T1.1 ∥ T1.2 ∥ T1.3
