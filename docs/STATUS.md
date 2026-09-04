@@ -1,6 +1,6 @@
 # Status do Projeto
 
-> Ponto de retomada. Atualizado em: 2026-09-03.
+> Ponto de retomada. Atualizado em: 2026-09-04.
 
 ## Onde paramos
 
@@ -30,6 +30,9 @@ e E2E) e CI (GitHub Actions) configurados.
     PDF não) e movíveis livremente pela página (alça dedicada, sai do fluxo
     do texto); link clicável (abre em nova aba) com estilo padronizado
     (Fase 15).
+  - Exportar caderno inteiro como PDF (impressão nativa do navegador), com
+    linhas/cores/fontes do caderno preservadas — cada página do caderno vira
+    uma página do PDF (Fase 16).
   - Remover imagem/PDF (botão `✕` sobre o item).
   - Linhas de caderno via CSS + modo de página fixo vs. contínuo + cor da linha.
   - Autosave com debounce + flush no `beforeunload` + indicador de status +
@@ -64,10 +67,24 @@ e E2E) e CI (GitHub Actions) configurados.
 
 - ✅ **Release v0.2.0 em `main`** (PR #15, 2026-09-03): Supabase, tipografia
   expandida (Fase 14) e mídia embutida (Fase 15).
+- ✅ Exportar PDF (Fase 16): verificado via automação de navegador
+  (Playwright) contra o app rodando — 2 páginas exportadas como 2
+  `.print-sheet`; `width` da imagem redimensionada e `font-family`/
+  `font-size` customizados aplicados corretamente no HTML exportado; UI do
+  app (`#root`) invisível em modo impressão (`display: none`,
+  `checkVisibility() === false`), `#print-root` visível; quebra de página
+  correta; `print-color-adjust: exact` aplicado; screenshot confirmou
+  papel/linhas/margem vermelha visíveis. Falta confirmação do usuário no
+  navegador (T16.6) — ver "Próximo passo".
 
 ### Próximo passo
 
-- Definir o próximo foco (backlog abaixo ou novo pedido do usuário).
+- **Fase 16 (exportar PDF)**: você conferir no navegador — clicar
+  "Exportar PDF" no editor, "Salvar como PDF" no diálogo de impressão, e
+  abrir o arquivo gerado. Vale testar também com um PDF real embutido (o
+  placeholder "📄 nome do arquivo" não foi testado com upload real, só via
+  revisão de código).
+- Definir o próximo foco depois disso (backlog abaixo ou novo pedido).
 - (opcional) Proteção de branch no GitHub (bloquear merge com CI falhando).
 
 ### Fora do MVP (backlog futuro)
@@ -159,3 +176,22 @@ Regras rápidas:
 - **2026-09-03** — PR #14 mergeada em `develop` (827f0b0). Release **v0.2.0**
   para `main` (PR #15, merge commit `5a7f6dc`): Supabase, tipografia
   expandida e mídia embutida. CI verde em `develop` e na PR de release.
+- **2026-09-04** — Fase 16 (exportar caderno como PDF, branch
+  `feature/exportar-pdf`): impressão nativa do navegador (`window.print()`),
+  view de impressão monta uma `.paper`/`.paper-lines` por página do caderno
+  (mesmas classes do editor). Tentativa inicial com `@tiptap/html`
+  (`generateHTML`) **descartada**: serializa num DOM headless (`zeed-dom`)
+  que não sincroniza `style.cssText` de volta pro atributo — toda
+  formatação baseada em `style` (cor, fonte, tamanho, largura de imagem)
+  saía sem efeito, confirmado com teste isolado. Corrigido usando o
+  `DOMSerializer` do ProseMirror direto com o `document` real do navegador
+  (`@tiptap/pm/model`, já dependência transitiva — nenhuma dependência nova
+  no fim das contas). PDF embutido ganhou um placeholder visual no
+  `renderHTML` (antes era uma `<div>` vazia fora do NodeView React). FR-26 a
+  FR-28 e Fase 16 registrados em `spec.md`/`plan.md`/`tasks.md`. Verificado
+  via automação de navegador (Playwright) contra o app rodando: 2 páginas
+  exportadas corretamente, `width`/`font-family`/`font-size` aplicados no
+  HTML, UI do app escondida em modo impressão, quebra de página e
+  `print-color-adjust` corretos. `tsc --noEmit` limpo, 18 testes frontend +
+  21 backend, build OK, E2E verde. Falta confirmação do usuário no
+  navegador (T16.6).

@@ -176,3 +176,38 @@ assets(id PK, user_id FK->users ON DELETE CASCADE,
   `false`), abrindo a URL em nova aba (`target="_blank"`,
   `rel="noopener noreferrer"`) com estilo padronizado (sublinhado, cor de
   acento, cursor pointer) em vez do estilo cru do navegador.
+
+## Exportar PDF (Fase 16)
+
+- **Sem serviço novo no backend**: o `content_json` de todas as páginas já
+  vem no `GET /notebooks/{id}/pages` (usado pra montar a lista lateral) —
+  a exportação é 100% frontend, reaproveitando dado que já está carregado.
+- **`DOMSerializer` do ProseMirror** (`@tiptap/pm/model`, já uma dependência
+  transitiva do `@tiptap/core`) direto com o **DOM real do navegador**: gera
+  o HTML estático de cada página a partir do `content_json`, com o mesmo
+  schema (`getSchema(editorExtensions)`) do editor ao vivo — sem precisar de
+  uma instância viva do TipTap por página. **Não usa o pacote `@tiptap/html`**:
+  ele serializa num DOM headless (`zeed-dom`, pra rodar em Node/SSR) que não
+  sincroniza `element.style.cssText` de volta pro atributo `style` — testado
+  e confirmado que isso quebra qualquer marca baseada em `style` (cor, fonte,
+  tamanho, largura de imagem redimensionada) na exportação. Como o app roda
+  100% no navegador, dá pra passar o `document` real pro `DOMSerializer` e
+  contornar o problema por completo, sem essa dependência extra.
+- **View de impressão dedicada**: monta uma sequência de `.paper`/
+  `.paper-lines` (as mesmas classes do editor, então as linhas/cores/fontes
+  saem idênticas) com o HTML gerado, uma por página do caderno, injetada
+  fora da árvore normal da tela do editor.
+- **CSS de impressão** (`@media print`): esconde a UI do app (topbar,
+  sidebar, toolbar) e mostra só a view de impressão; `print-color-adjust:
+  exact` nas linhas do papel (senão o navegador some com o gradiente de
+  fundo ao imprimir, por padrão pra economizar tinta); `page-break-after:
+  always` entre páginas do caderno.
+- **Imagem/PDF no export**: `ImageEmbed`/`PdfEmbed` ganham `renderHTML`
+  explícito pra `width`/`height` (aplica o tamanho redimensionado como
+  `style` no HTML estático — por padrão TipTap não mapeia atributos custom
+  pro HTML sem isso). `x`/`y` (posição flutuante da Fase 15) não entra no
+  `renderHTML` de propósito — a impressão sempre segue o fluxo normal do
+  documento, não tenta replicar posicionamento livre numa página impressa.
+- **Fluxo**: clique em "Exportar PDF" → `flush()` do autosave da página
+  atual (garante que o que está sendo editado entra no PDF) → monta a view
+  de impressão → `window.print()` → desmonta no evento `afterprint`.
