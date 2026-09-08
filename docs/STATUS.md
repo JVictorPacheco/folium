@@ -306,3 +306,5 @@ Regras rápidas:
   lentidão do Docker Desktop nesta sessão após várias reconstruções de
   imagem — descartado como regressão de código via teste direto do
   endpoint com `curl`, que respondeu corretamente). **Fase 19 completa.**
+- ✅ **Release v0.5.0 em `main`** (PR #29, 2026-09-08): compartilhamento
+  de cadernos (Fase 19).
