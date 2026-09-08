@@ -53,8 +53,8 @@ trabalho" abaixo.
 
 ### Verificado (automatizado + manual)
 
-- ✅ Backend: **21 testes passando** (`pytest`).
-- ✅ Frontend: **18 testes passando** (`vitest`), `tsc --noEmit` limpo, build OK.
+- ✅ Backend: **34 testes passando** (`pytest`).
+- ✅ Frontend: **24 testes passando** (`vitest`), `tsc --noEmit` limpo, build OK.
 - ✅ **E2E (Playwright)**: fluxo cadastro → caderno → editar → recarregar passando.
 - ✅ **CI (GitHub Actions)**: `pytest` + `vitest`/`typecheck` rodam a cada PR/push.
 - ✅ `docker compose up --build` completo (db + backend + frontend).
