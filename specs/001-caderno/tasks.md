@@ -353,6 +353,33 @@
       código, confirmado via `curl` direto no endpoint). **Fase 19
       completa.**
 
+## Fase 20 — Colar e arrastar imagem
+
+> Pedido do usuário (2026-09-08): colar imagem com Ctrl+V ou arrastar do
+> computador com o mouse, sem precisar do seletor de arquivo.
+
+- [x] T20.1 `editorProps.handlePaste`/`handleDrop` no `useEditor` de
+      `EditorPage`: filtra por `image/*`, reaproveita `uploadAsset` (mesmo
+      usado pelo botão "Imagem" da toolbar), guardado por `canEditRef`
+      (viewer não pode colar/soltar).
+- [x] T20.2 Bug encontrado e corrigido durante verificação ao vivo:
+      inserir uma segunda imagem em sequência substituía a primeira (nó
+      de imagem é átomo → seleção vira `NodeSelection` nele →
+      `insertContent` numa `NodeSelection` substitui em vez de inserir do
+      lado). Corrigido inserindo imagem + parágrafo vazio juntos numa só
+      chamada (`insertContent([...])`), cursor termina em posição de
+      texto normal. Arquivos de um drop múltiplo processados um de cada
+      vez (`for...of` + `await`), não em paralelo.
+- [x] T20.3 Verificação: `tsc` limpo, 27 testes frontend passando (sem
+      teste dedicado de unidade pro paste/drop — TipTap/ProseMirror sobre
+      jsdom não reproduz `ClipboardEvent`/`DragEvent` de forma confiável;
+      verificado ao vivo via automação de navegador contra o app rodando,
+      simulando paste/drop com `ClipboardEvent`/`DragEvent` sintéticos e
+      arquivos reais: colar uma imagem insere e persiste após reload;
+      soltar dois arquivos de uma vez insere os dois lado a lado (não um
+      substituindo o outro) — confirmado antes e depois da correção do
+      T20.2. **Fase 20 completa.**
+
 ## Grupos paralelos seguros
 
 - Fase 1: T1.1 ∥ T1.2 ∥ T1.3
