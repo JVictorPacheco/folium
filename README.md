@@ -2,9 +2,12 @@
 
 Caderno digital na nuvem: páginas com linhas simulando um caderno real,
 formatação rica (cor de caneta, marcação, negrito, listas, títulos, tamanho e
-família de fonte), inserção de imagens, links e PDFs — redimensionáveis e
-movíveis pela página —, exportação do caderno completo em PDF preservando a
-aparência do papel, com autenticação e sincronização individual.
+família de fonte), inserção de imagens (colar/arrastar direto, sem seletor
+de arquivo), links e PDFs — redimensionáveis e movíveis pela página —,
+exportação do caderno completo em PDF preservando a aparência do papel,
+histórico de versões por página, busca e tags entre cadernos, e
+compartilhamento de cadernos com outras contas (leitura ou edição), com
+autenticação e sincronização individual.
 
 ## Stack
 

@@ -8,8 +8,9 @@ MVP do **Folium** (caderno digital na nuvem) implementado e **testado de ponta
 a ponta** (smoke test manual + E2E aprovados). Backend e frontend completos,
 com modo dark e design system "caderno". Testes automatizados (unit, integração
 e E2E) e CI (GitHub Actions) configurados. Histórico de versões (Fase 17),
-busca + tags (Fase 18) e compartilhamento de cadernos (Fase 19)
-implementados e verificados — ver "Registro de trabalho" abaixo.
+busca + tags (Fase 18), compartilhamento de cadernos (Fase 19) e colar/
+arrastar imagem (Fase 20) implementados e verificados — ver "Registro de
+trabalho" abaixo.
 
 ### O que está pronto
 
@@ -45,6 +46,9 @@ implementados e verificados — ver "Registro de trabalho" abaixo.
     níveis `viewer`/`editor`; selo na listagem, modal de gerenciar
     compartilhamentos (convidar/revogar), editor se adapta ao papel
     (leitura sem toolbar/histórico-restaurar para `viewer`) (Fase 19).
+  - Colar (Ctrl+V) ou arrastar arquivo(s) de imagem do computador direto
+    na página, sem passar pelo seletor de arquivo — reaproveita o mesmo
+    upload do botão "Imagem"; bloqueado para acesso `viewer` (Fase 20).
   - Remover imagem/PDF (botão `✕` sobre o item).
   - Linhas de caderno via CSS + modo de página fixo vs. contínuo + cor da linha.
   - Autosave com debounce + flush no `beforeunload` + indicador de status +
