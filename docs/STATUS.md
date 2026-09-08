@@ -308,3 +308,16 @@ Regras rápidas:
   endpoint com `curl`, que respondeu corretamente). **Fase 19 completa.**
 - ✅ **Release v0.5.0 em `main`** (PR #29, 2026-09-08): compartilhamento
   de cadernos (Fase 19).
+- **2026-09-08** — Fase 20 (colar/arrastar imagem, branch
+  `feature/colar-imagem`, a pedido do usuário): `editorProps.handlePaste`/
+  `handleDrop` no editor — Ctrl+V de uma imagem copiada ou soltar
+  arquivo(s) de imagem insere embutido na página, reaproveitando o mesmo
+  upload do botão "Imagem" da toolbar; bloqueado pra quem só tem acesso
+  `viewer`. Bug real encontrado ao testar ao vivo: inserir uma segunda
+  imagem em sequência substituía a primeira (seleção fica em cima do nó
+  recém-inserido, que é um átomo); corrigido inserindo imagem + parágrafo
+  vazio juntos, deixando o cursor numa posição de texto normal depois.
+  Verificado via automação de navegador contra o app rodando (paste/drop
+  sintéticos com arquivos reais): colar persiste após reload; soltar dois
+  arquivos de uma vez insere os dois, não um substituindo o outro. `tsc`
+  limpo, 27 testes frontend passando. **Fase 20 completa.**

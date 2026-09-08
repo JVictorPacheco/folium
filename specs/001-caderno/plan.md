@@ -340,3 +340,36 @@ assets(id PK, user_id FK->users ON DELETE CASCADE,
   evita que a própria troca de `editable` dispare um evento `update` e
   agende um autosave por conta própria, algo que gerava um falso "Erro ao
   salvar" pra quem só tem acesso de leitura).
+
+## Colar e arrastar imagem (Fase 20)
+
+- **`editorProps.handlePaste`/`handleDrop`** no `useEditor` de
+  `EditorPage`: intercepta `ClipboardEvent`/`DragEvent` no editor,
+  filtra por `image/*` (`clipboardData.items`/`dataTransfer.files`) e,
+  se achar, faz `event.preventDefault()` + retorna `true` (assume o
+  evento por completo, TipTap não tenta tratar como paste de texto/HTML).
+  Sem imagem no clipboard/drop, retorna `false` — deixa o comportamento
+  padrão (colar texto, etc.) intacto. Guardado por `canEditRef` (ref
+  sincronizado a cada render, não a variável direto — os callbacks de
+  `editorProps` são capturados na criação do editor e não seriam
+  atualizados sozinhos a cada render).
+- **Reaproveita o upload existente**: mesma `uploadAsset(file, "image")`
+  usada pelo botão "Imagem" da toolbar — sem endpoint novo, mesma
+  validação de tipo/tamanho no backend.
+- **Bug real encontrado e corrigido durante verificação ao vivo**: inserir
+  duas imagens em sequência (ex.: soltar vários arquivos de uma vez) fazia
+  a segunda *substituir* a primeira em vez de ficar do lado. Causa: um nó
+  de imagem é um átomo — depois de inserido, a seleção do editor vira uma
+  `NodeSelection` em cima dele; `insertContent`/`setImage` numa
+  `NodeSelection` *substitui* o nó selecionado (comportamento padrão do
+  ProseMirror), não insere ao lado. Correção: cada inserção agora insere
+  a imagem **e** um parágrafo vazio juntos, numa única chamada
+  (`insertContent([{type: "image", ...}, {type: "paragraph"}])`) — o
+  cursor termina dentro do parágrafo (uma posição de texto normal), não
+  mais em cima do átomo, então a próxima inserção não tem nó nenhum pra
+  substituir. Arquivos de um drop múltiplo são processados um de cada vez
+  (`for...of` com `await`), não em paralelo, pra manter a ordem e evitar
+  qualquer corrida entre uploads.
+- **Permissão**: os handlers checam `canEditRef.current` antes de
+  qualquer coisa — usuário `viewer` não consegue colar/soltar (mesma
+  regra que já esconde a toolbar e desliga `editable` no TipTap pra ele).
