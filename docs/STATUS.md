@@ -264,3 +264,5 @@ Regras rápidas:
   contra Postgres real. Fluxo completo (tag num caderno → chip → filtro
   → busca por conteúdo → clique abre a página certa) testado via
   automação de navegador contra o app rodando. **Fase 18 completa.**
+- ✅ **Release v0.4.0 em `main`** (PR #23, 2026-09-08): histórico de versões
+  (Fase 17) e busca/tags (Fase 18).
