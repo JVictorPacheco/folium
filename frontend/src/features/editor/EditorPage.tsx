@@ -55,7 +55,19 @@ export default function EditorPage() {
     if (pageId === activeIdRef.current) setRevision(newRevision);
   }, []);
 
-  const editor = useEditor({ extensions: editorExtensions, content: EMPTY_DOC });
+  const role = notebook?.role ?? "owner";
+  const isOwner = role === "owner";
+  const canEdit = role !== "viewer";
+
+  const editor = useEditor({ extensions: editorExtensions, content: EMPTY_DOC, editable: canEdit });
+
+  useEffect(() => {
+    // `emitUpdate: false` — trocar editable não é uma edição de conteúdo;
+    // sem isso o TipTap dispara "update" nessa troca, o que agendava um
+    // autosave (e um 404 pra quem não pode editar) só por causa do próprio
+    // ajuste de permissão, não de algo que o usuário digitou.
+    editor?.setEditable(canEdit, false);
+  }, [editor, canEdit]);
 
   const getJson = (): Record<string, unknown> =>
     (editor?.getJSON() as Record<string, unknown>) ?? EMPTY_DOC;
@@ -96,7 +108,7 @@ export default function EditorPage() {
   }, [activePage?.id, editor]);
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor || !canEdit) return;
     const handler = () => schedule();
     editor.on("update", handler);
     return () => {
@@ -213,18 +225,23 @@ export default function EditorPage() {
     <div className="editor-page">
       <header className="topbar">
         <Button onClick={() => navigate("/")}>← Cadernos</Button>
-        <h2 className="notebook-title">{notebook?.name ?? "..."}</h2>
-        <label className="line-color" title="Cor da linha do caderno">
-          Linha
-          <input
-            type="color"
-            value={effectiveLineColor}
-            onChange={(e) => {
-              setLineColorDraft(e.target.value);
-              setLineColor.mutate(e.target.value);
-            }}
-          />
-        </label>
+        <h2 className="notebook-title">
+          {notebook?.name ?? "..."}
+          {!isOwner && <span className="role-badge">{role === "editor" ? "pode editar" : "só ver"}</span>}
+        </h2>
+        {isOwner && (
+          <label className="line-color" title="Cor da linha do caderno">
+            Linha
+            <input
+              type="color"
+              value={effectiveLineColor}
+              onChange={(e) => {
+                setLineColorDraft(e.target.value);
+                setLineColor.mutate(e.target.value);
+              }}
+            />
+          </label>
+        )}
         <Button onClick={handleExportPdf} disabled={exporting}>
           {exporting ? "Exportando..." : "Exportar PDF"}
         </Button>
@@ -236,9 +253,11 @@ export default function EditorPage() {
       </header>
 
       <aside className="page-sidebar">
-        <Button className="full" onClick={handleCreate}>
-          + Página
-        </Button>
+        {canEdit && (
+          <Button className="full" onClick={handleCreate}>
+            + Página
+          </Button>
+        )}
         {pages.map((p) => (
           <div
             key={p.id}
@@ -246,23 +265,25 @@ export default function EditorPage() {
             onClick={() => selectPage(p.id)}
           >
             <span>{p.title}</span>
-            <button
-              className="icon-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                removePage.mutate(p.id);
-              }}
-              title="Excluir página"
-            >
-              🗑️
-            </button>
+            {canEdit && (
+              <button
+                className="icon-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removePage.mutate(p.id);
+                }}
+                title="Excluir página"
+              >
+                🗑️
+              </button>
+            )}
           </div>
         ))}
       </aside>
 
       <main className="paper-area">
         <div className={paperClass} style={paperStyle}>
-          {editor && <Toolbar editor={editor} />}
+          {editor && canEdit && <Toolbar editor={editor} />}
           <div className="paper-lines">
             <EditorContent editor={editor} />
           </div>
@@ -272,6 +293,7 @@ export default function EditorPage() {
       {showHistory && activeId && (
         <VersionHistoryModal
           pageId={activeId}
+          canRestore={canEdit}
           onClose={() => setShowHistory(false)}
           onRestored={handleRestored}
         />

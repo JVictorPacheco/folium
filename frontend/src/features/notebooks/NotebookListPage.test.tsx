@@ -18,6 +18,7 @@ const NOTEBOOKS = [
     line_color: "#D9CDB4",
     line_spacing: 28,
     tags: ["cozinha"],
+    role: "owner",
     created_at: "2026-09-01T00:00:00Z",
     updated_at: "2026-09-01T00:00:00Z",
   },

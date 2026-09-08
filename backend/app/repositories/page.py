@@ -1,8 +1,9 @@
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import contains_eager
 
 from app.models.notebook import Notebook
+from app.models.notebook_share import NotebookShare
 from app.models.page import Page
 from app.models.tag import Tag
 
@@ -15,7 +16,14 @@ class PageRepository:
         stmt = (
             select(Page)
             .join(Notebook, Notebook.id == Page.notebook_id)
-            .where(Notebook.user_id == user_id)
+            .outerjoin(
+                NotebookShare,
+                and_(
+                    NotebookShare.notebook_id == Notebook.id,
+                    NotebookShare.shared_with_user_id == user_id,
+                ),
+            )
+            .where(or_(Notebook.user_id == user_id, NotebookShare.shared_with_user_id == user_id))
             .options(contains_eager(Page.notebook))
         )
         if tag:
@@ -31,14 +39,6 @@ class PageRepository:
 
     async def get(self, page_id: int) -> Page | None:
         return await self._session.get(Page, page_id)
-
-    async def get_for_user(self, page_id: int, user_id: int) -> Page | None:
-        result = await self._session.execute(
-            select(Page)
-            .join(Notebook, Notebook.id == Page.notebook_id)
-            .where(Page.id == page_id, Notebook.user_id == user_id)
-        )
-        return result.scalar_one_or_none()
 
     async def next_position(self, notebook_id: int) -> int:
         result = await self._session.execute(

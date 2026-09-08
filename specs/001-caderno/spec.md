@@ -24,10 +24,11 @@ individual na nuvem.
 ## Não-metas (fora do MVP)
 
 - Colaboração em tempo real (Yjs/Hocuspocus) — dois usuários editando o
-  mesmo caderno ao mesmo tempo não está no escopo. Compartilhar um caderno
-  para acesso (não simultâneo) pode ser considerado no futuro.
+  mesmo caderno ao mesmo tempo, com sincronização ao vivo/cursor um do
+  outro, segue fora de escopo.
 - App mobile.
-- Compartilhamento entre usuários.
+- Compartilhamento por link público (sem exigir conta) — compartilhamento
+  (Fase 19) exige que a pessoa já tenha conta no Folium.
 
 ## Personas
 
@@ -64,6 +65,11 @@ individual na nuvem.
     uma delas, para organizar cadernos por assunto.
 18. Como usuário, quero buscar um termo e encontrar em qual caderno/página
     ele aparece (no título ou no conteúdo), e ir direto pra lá.
+19. Como usuário (dono), quero compartilhar um caderno com outra pessoa já
+    cadastrada no Folium, escolhendo se ela só pode ver ou também editar.
+20. Como usuário (com acesso compartilhado), quero ver os cadernos que
+    compartilharam comigo junto com os meus, e saber se posso só ver ou
+    também editar cada um.
 
 ## Requisitos Funcionais
 
@@ -150,6 +156,18 @@ individual na nuvem.
   em torno do termo encontrado; clicar num resultado abre o editor direto
   naquela página. Busca pode ser combinada com o filtro de tag
   (`GET /search?q=&tag=`).
+- **FR-32**: Compartilhamento de caderno: dono convida por e-mail (a pessoa
+  precisa já ter conta no Folium) com nível `viewer` (só ver) ou `editor`
+  (ver e editar conteúdo). Convidar o mesmo e-mail de novo atualiza o
+  nível em vez de duplicar. Dono lista e revoga compartilhamentos
+  (`GET`/`POST`/`DELETE /notebooks/{id}/shares`). Só o dono gerencia
+  compartilhamento, tags, nome e configurações do caderno — `editor`
+  mexe em páginas/conteúdo/histórico, não no caderno em si.
+- **FR-33**: Cadernos compartilhados aparecem na listagem de quem recebeu
+  acesso (`GET /notebooks`), junto com os próprios, marcados com o papel
+  (`role`: `owner`/`editor`/`viewer`). Busca (FR-31) também considera
+  cadernos compartilhados. Tags (FR-30) continuam sendo só do dono — não
+  aparecem nem são filtráveis para quem recebeu acesso.
 
 ## Requisitos Não-Funcionais
 
@@ -205,3 +223,15 @@ individual na nuvem.
 - [x] Usuário digita um termo na busca e encontra páginas cujo título,
       nome do caderno ou conteúdo contêm o termo, com um trecho de
       contexto; clicar no resultado abre o editor já na página certa.
+- [x] Dono compartilha um caderno com outra conta como `viewer`: a pessoa
+      vê o caderno na própria listagem, abre e lê o conteúdo, mas não
+      edita, não cria/exclui página, não restaura versão, não muda nome/
+      tags/cor da linha e não gerencia compartilhamento (tudo 404).
+- [x] Dono compartilha um caderno como `editor`: a pessoa edita conteúdo,
+      cria/exclui página e restaura versão do histórico, mas continua sem
+      acesso às configurações do caderno (nome/tags/cor/compartilhamento).
+- [x] Convidar o mesmo e-mail de novo atualiza o nível de acesso (não
+      duplica); revogar remove o acesso imediatamente (404 em seguida).
+- [x] Um usuário sem nenhuma relação com o caderno (nem dono, nem
+      convidado) não o acessa de forma alguma (404), igual ao isolamento
+      já existente entre usuários.

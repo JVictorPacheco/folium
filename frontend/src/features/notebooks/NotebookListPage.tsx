@@ -9,6 +9,13 @@ import { Input } from "../../components/Input";
 import ThemeToggle from "../../components/ThemeToggle";
 import { useDebouncedCallback } from "../../hooks/useDebouncedCallback";
 import { useAuth } from "../auth/AuthContext";
+import ShareModal from "./ShareModal";
+
+const ROLE_LABEL: Record<Notebook["role"], string> = {
+  owner: "",
+  editor: "compartilhado · pode editar",
+  viewer: "compartilhado · só ver",
+};
 
 export default function NotebookListPage() {
   const { logout } = useAuth();
@@ -16,6 +23,7 @@ export default function NotebookListPage() {
   const qc = useQueryClient();
   const [name, setName] = useState("");
   const [tagFilter, setTagFilter] = useState("");
+  const [sharingNotebookId, setSharingNotebookId] = useState<number | null>(null);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const setDebouncedQueryLater = useDebouncedCallback(setDebouncedQuery, 300);
@@ -170,6 +178,7 @@ export default function NotebookListPage() {
                     <span className="notebook-name">{nb.name}</span>
                     <span className="muted">
                       {nb.page_mode === "fixed" ? "Páginas fixas" : "Rolagem contínua"}
+                      {nb.role !== "owner" && ` · ${ROLE_LABEL[nb.role]}`}
                     </span>
                     {nb.tags.length > 0 && (
                       <span className="tag-chips">
@@ -181,15 +190,26 @@ export default function NotebookListPage() {
                       </span>
                     )}
                   </button>
-                  <button className="icon-btn" onClick={() => handleEditTags(nb)} title="Editar tags">
-                    🏷️
-                  </button>
-                  <button className="icon-btn" onClick={() => handleRename(nb)} title="Renomear">
-                    ✏️
-                  </button>
-                  <button className="icon-btn" onClick={() => remove.mutate(nb.id)} title="Excluir">
-                    🗑️
-                  </button>
+                  {nb.role === "owner" && (
+                    <>
+                      <button
+                        className="icon-btn"
+                        onClick={() => setSharingNotebookId(nb.id)}
+                        title="Compartilhar"
+                      >
+                        👥
+                      </button>
+                      <button className="icon-btn" onClick={() => handleEditTags(nb)} title="Editar tags">
+                        🏷️
+                      </button>
+                      <button className="icon-btn" onClick={() => handleRename(nb)} title="Renomear">
+                        ✏️
+                      </button>
+                      <button className="icon-btn" onClick={() => remove.mutate(nb.id)} title="Excluir">
+                        🗑️
+                      </button>
+                    </>
+                  )}
                 </li>
               ))}
             </ul>
@@ -200,6 +220,10 @@ export default function NotebookListPage() {
           </>
         )}
       </main>
+
+      {sharingNotebookId !== null && (
+        <ShareModal notebookId={sharingNotebookId} onClose={() => setSharingNotebookId(null)} />
+      )}
     </div>
   );
 }

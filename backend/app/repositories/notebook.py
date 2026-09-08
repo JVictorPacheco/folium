@@ -27,6 +27,10 @@ class NotebookRepository:
         )
         return result.unique().scalar_one_or_none()
 
+    async def get_by_id(self, notebook_id: int) -> Notebook | None:
+        result = await self._session.execute(self._base_query().where(Notebook.id == notebook_id))
+        return result.unique().scalar_one_or_none()
+
     async def create(self, user_id: int, **values) -> Notebook:
         notebook = Notebook(user_id=user_id, **values)
         self._session.add(notebook)
