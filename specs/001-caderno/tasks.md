@@ -289,6 +289,70 @@
       termo no campo de busca → resultado com trecho de contexto → clicar
       abre o editor direto na página certa. **Fase 18 completa.**
 
+## Fase 19 — Compartilhamento de cadernos
+
+> Decisões de arquitetura (2026-09-08): compartilhar exige e-mail de conta
+> já cadastrada (sem link público/acesso anônimo); dois níveis apenas
+> (`viewer`/`editor`) — cobre "mostrar" vs. "trabalhar junto", sem
+> granularidade extra. Edição simultânea/tempo real segue fora de escopo
+> (ver Não-metas). Toda checagem de acesso passou a viver num único lugar
+> (`NotebookAccessService`), substituindo os `WHERE user_id = :dono`
+> espalhados pelos repositórios.
+
+- [x] T19.1 Modelo `NotebookShare` + migração `0005` (tabela
+      `notebook_shares`, `UNIQUE(notebook_id, shared_with_user_id)`).
+- [x] T19.2 `NotebookShareRepository` (`list_by_notebook`,
+      `list_shared_with_user`, `get`, `get_for_notebook_and_user`,
+      `upsert`, `delete`) + `NotebookRepository.get_by_id` (sem filtro de
+      dono, usado pela resolução de acesso).
+- [x] T19.3 `NotebookAccessService` (`app/services/access.py`):
+      `AccessLevel` (`OWNER`/`EDITOR`/`VIEWER`), `resolve`/`require` — o
+      ponto único de "esse usuário pode fazer X neste caderno".
+- [x] T19.4 Refatoração de `NotebookService`, `PageService` e
+      `ContentService` pra checar acesso via `NotebookAccessService` em
+      vez de filtrar `user_id` direto no repositório; `PageRepository`/
+      `PageVersionRepository` simplificados (sem `JOIN` de isolamento
+      próprio, o serviço já garante o acesso antes de chamar).
+      `NotebookService.list` passou a unir cadernos próprios + 
+      compartilhados, cada um com `role` anotado.
+- [x] T19.5 `ShareService` + rotas `GET`/`POST`/`DELETE
+      /notebooks/{id}/shares` (owner-only): convite por e-mail (404 se a
+      conta não existir), upsert em vez de duplicar, recusa
+      auto-compartilhamento (400).
+- [x] T19.6 `PageRepository.list_for_user` (busca) estendido com `LEFT
+      JOIN` em `notebook_shares` — busca cobre cadernos compartilhados.
+- [x] T19.7 Testes backend (`test_shares.py`, 9 casos): viewer não edita/
+      cria página/restaura/gerencia caderno (404 em cada); editor edita e
+      restaura mas não mexe no caderno; convite exige conta existente
+      (404) e recusa auto-share (400); convite duplicado atualiza nível
+      em vez de duplicar; revogação remove acesso; estranho sem relação
+      não acessa nada; busca inclui caderno compartilhado.
+- [x] T19.8 Frontend: `Notebook.role` no tipo; `NotebookListPage` mostra
+      selo "compartilhado · pode editar/só ver" e esconde botões de dono
+      pra quem não é dono; `ShareModal` (listar/convidar/revogar).
+      `EditorPage`: `role !== "owner"` esconde toolbar/"+Página"/excluir
+      página/cor da linha; `role === "viewer"` também esconde
+      "Restaurar" no histórico e torna o editor não-editável.
+- [x] T19.9 Bug encontrado e corrigido durante verificação ao vivo:
+      `editor.setEditable(canEdit)` (sem o 2º argumento) dispara um
+      evento `update` do TipTap na própria troca de permissão, agendando
+      um autosave que dava 404 pra quem só tem acesso de leitura — UI
+      mostrava "Erro ao salvar" mesmo sem o usuário ter digitado nada.
+      Corrigido com `editor.setEditable(canEdit, false)` (suprime o
+      evento nessa troca).
+- [x] T19.10 Verificação: 43 testes backend (9 novos) + 27 frontend (4
+      novos) passando, `tsc` limpo, build OK. Migração `0005` testada
+      contra Postgres real. Fluxo completo (dona compartilha como editor
+      → colega edita e salva → dona rebaixa pra viewer → colega vê
+      conteúdo mas sem toolbar/restaurar/edição, status "Salvo" correto)
+      testado via automação de navegador contra o app rodando, com dois
+      usuários reais alternando sessão. E2E (`smoke.spec.ts`) confirmado
+      funcionalmente correto (passou com timeout maior; o timeout padrão
+      de 5s ficou justo pela lentidão do Docker Desktop nesta sessão
+      depois de várias reconstruções de imagem — não uma regressão de
+      código, confirmado via `curl` direto no endpoint). **Fase 19
+      completa.**
+
 ## Grupos paralelos seguros
 
 - Fase 1: T1.1 ∥ T1.2 ∥ T1.3

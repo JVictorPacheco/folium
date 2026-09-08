@@ -284,3 +284,59 @@ assets(id PK, user_id FK->users ON DELETE CASCADE,
   (lista separada por vírgula), mesmo padrão já usado pra renomear —
   simples e consistente com o resto da tela, sem precisar de um editor de
   chips dedicado.
+
+## Compartilhamento de cadernos (Fase 19)
+
+- **Tabela `notebook_shares`**: `notebook_id`, `shared_with_user_id`,
+  `permission` (`viewer`/`editor`), `UNIQUE(notebook_id,
+  shared_with_user_id)` — convidar de novo faz upsert (atualiza o nível),
+  não duplica linha. Migração `0005`.
+- **Um único ponto de verificação de acesso**: `NotebookAccessService`
+  (`app/services/access.py`) — `resolve(notebook_id, user_id)` retorna
+  `(Notebook, AccessLevel)` (`OWNER`/`EDITOR`/`VIEWER`, um `IntEnum`
+  comparável) ou `None`; dono sempre resolve pra `OWNER`, senão consulta
+  `notebook_shares`. `require(..., min_level)` levanta
+  `NotebookAccessError` se o nível for insuficiente ou o caderno não
+  existir — mesmo erro pros dois casos, pra não vazar se o caderno existe
+  (mantém o padrão 404 já usado no isolamento por dono, nunca 403).
+- **Todo serviço que antes checava "página/caderno pertence a este
+  usuário" direto no repositório passou a checar via
+  `NotebookAccessService`**: `NotebookService.get` (mín. `VIEWER`),
+  `PageService` (`VIEWER` pra ler, `EDITOR` pra criar/excluir),
+  `ContentService` (`VIEWER` pra ler/listar histórico, `EDITOR` pra
+  salvar/restaurar). `NotebookService.update`/`delete` continuam exigindo
+  ser dono de verdade (`NotebookRepository.get` filtrado por `user_id`) —
+  configurações do caderno (nome, tags, cor, compartilhamento) são só do
+  dono, não entram no nível `EDITOR`.
+- **Repositórios simplificados**: como a checagem de acesso agora vive no
+  serviço, `PageRepository.get`/`PageVersionRepository.get`/`list_by_page`
+  voltaram a ser buscas simples por id (sem `JOIN` até `notebooks.user_id`
+  pra isolamento) — o isolamento continua garantido, só que num lugar só
+  (`NotebookAccessService`) em vez de espalhado em cada query.
+- **`GET /notebooks`**: além dos cadernos do usuário, inclui os
+  compartilhados com ele (`NotebookShareRepository.list_shared_with_user`),
+  cada um com `role` anotado (atributo transiente no objeto ORM, não
+  persistido — só pra resposta) igual ao nível de acesso resolvido. Tags
+  (FR-30) continuam filtrando só os cadernos próprios — cadernos
+  compartilhados não têm as tags do dono do ponto de vista de quem
+  recebeu acesso.
+- **Busca (FR-31) inclui cadernos compartilhados**: `PageRepository.
+  list_for_user` ganhou um `LEFT JOIN` em `notebook_shares` (além do dono),
+  assim resultado de busca cobre tanto os próprios cadernos quanto os
+  compartilhados com o usuário.
+- **Rotas**: `GET`/`POST`/`DELETE /notebooks/{id}/shares` (todas exigem
+  ser dono via `NotebookAccessService.require(..., OWNER)`). `POST`
+  resolve o e-mail pra um `User` existente (`404` se não achar — precisa
+  já ter conta) e recusa compartilhar consigo mesmo (`400`).
+- **Frontend**: `NotebookOut.role` no tipo `Notebook`; lista de cadernos
+  mostra selo "compartilhado · pode editar/só ver" nos que não são
+  próprios e esconde os botões de dono (compartilhar/tags/renomear/
+  excluir) pra eles. `ShareModal` (mesmo padrão do `VersionHistoryModal`):
+  lista quem tem acesso + formulário pra convidar (e-mail + nível) +
+  revogar. No editor, `role !== "owner"` esconde a toolbar, "+ Página",
+  excluir página e o seletor de cor da linha; `role === "viewer"` também
+  esconde "Restaurar" no histórico e deixa o TipTap não-editável
+  (`editor.setEditable(canEdit, false)` — o `false` no segundo argumento
+  evita que a própria troca de `editable` dispare um evento `update` e
+  agende um autosave por conta própria, algo que gerava um falso "Erro ao
+  salvar" pra quem só tem acesso de leitura).

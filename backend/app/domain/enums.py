@@ -9,3 +9,8 @@ class PageMode(StrEnum):
 class AssetKind(StrEnum):
     IMAGE = "image"
     PDF = "pdf"
+
+
+class SharePermission(StrEnum):
+    VIEWER = "viewer"
+    EDITOR = "editor"
