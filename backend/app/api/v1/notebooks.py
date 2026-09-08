@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.api.deps import get_notebook_service
 from app.core.deps import get_current_user
@@ -11,10 +11,11 @@ router = APIRouter(prefix="/notebooks", tags=["notebooks"])
 
 @router.get("", response_model=list[NotebookOut])
 async def list_notebooks(
+    tag: str | None = Query(None),
     user: User = Depends(get_current_user),
     service: NotebookService = Depends(get_notebook_service),
 ) -> list[NotebookOut]:
-    return await service.list(user.id)
+    return await service.list(user.id, tag)
 
 
 @router.post("", response_model=NotebookOut, status_code=status.HTTP_201_CREATED)

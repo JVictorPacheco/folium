@@ -247,6 +247,48 @@
       conteúdo restaurado → conteúdo persiste após recarregar a página.
       **Fase 17 completa.**
 
+## Fase 18 — Busca e tags
+
+> Decisão de arquitetura (2026-09-08): busca é uma varredura em Python
+> sobre as páginas do usuário (não SQL full-text) — volume esperado é
+> baixo (poucas dezenas de páginas por usuário), evita depender de
+> recurso específico de dialeto (Postgres vs. SQLite dos testes). Tags
+> são um conjunto por caderno, substituído inteiro a cada `PATCH`, nomes
+> normalizados em minúsculas pra evitar duplicata por caixa.
+
+- [x] T18.1 Modelo `Tag` + tabela de associação `notebook_tags` (M2M) +
+      migração `0004` (`UNIQUE(user_id, name)` em `tags`).
+- [x] T18.2 `TagRepository` (`list_by_user`, `get_or_create_many` com
+      normalização/dedupe) + `NotebookRepository` com `selectinload` de
+      tags e filtro opcional por tag em `list_by_user`.
+- [x] T18.3 `NotebookService.update` resolve `tags: list[str]` pra `Tag`
+      antes de persistir; `NotebookOut` serializa `tags` como lista de
+      nomes (ordenada). Rota `GET /tags` (lista as tags do usuário) e
+      `GET /notebooks?tag=` (filtro).
+- [x] T18.4 `PageRepository.list_for_user` (todas as páginas do usuário,
+      isolado via join, com `Notebook` eager-carregado via
+      `contains_eager`, filtro opcional por tag) + `SearchService`
+      (`page_plain_text` extrai texto do JSON do editor, `_snippet`
+      recorta contexto ao redor do termo) + rota `GET /search?q=&tag=`.
+- [x] T18.5 Testes backend: normalização/dedupe de tags, filtro de
+      cadernos por tag, isolamento de tags entre usuários; busca por
+      conteúdo/título/nome do caderno, snippet, filtro por tag,
+      isolamento entre usuários.
+- [x] T18.6 Frontend: `NotebookListPage` — campo de busca (debounce
+      300ms) que troca a lista por resultados (caderno · página +
+      trecho) e navega direto pra página encontrada; filtro por tag
+      (`<select>`); editar tags de um caderno via `window.prompt`
+      (mesmo padrão do renomear); chips de tag na listagem.
+      `EditorPage` lê `?page=` da URL pra abrir direto na página do
+      resultado de busca.
+- [x] T18.7 Verificação: 34 testes backend (8 novos) + 24 frontend (3
+      novos) passando, `tsc` limpo, build OK, E2E verde. Migração `0004`
+      testada contra Postgres real (`docker compose up`). Fluxo completo
+      testado via automação de navegador contra o app rodando: criar tag
+      num caderno → chip aparece → filtrar lista pela tag → digitar
+      termo no campo de busca → resultado com trecho de contexto → clicar
+      abre o editor direto na página certa. **Fase 18 completa.**
+
 ## Grupos paralelos seguros
 
 - Fase 1: T1.1 ∥ T1.2 ∥ T1.3
