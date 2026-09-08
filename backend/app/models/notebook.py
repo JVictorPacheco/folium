@@ -8,9 +8,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 from app.domain.enums import PageMode
+from app.models.notebook_tag import notebook_tags
 
 if TYPE_CHECKING:
     from app.models.page import Page
+    from app.models.tag import Tag
     from app.models.user import User
 
 
@@ -39,4 +41,7 @@ class Notebook(Base):
     owner: Mapped["User"] = relationship(back_populates="notebooks")
     pages: Mapped[list["Page"]] = relationship(
         back_populates="notebook", cascade="all, delete-orphan", order_by="Page.position"
+    )
+    tags: Mapped[list["Tag"]] = relationship(
+        secondary=notebook_tags, back_populates="notebooks", order_by="Tag.name"
     )

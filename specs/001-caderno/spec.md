@@ -60,6 +60,10 @@ individual na nuvem.
 16. Como usuário, quero ver um histórico de versões anteriores de uma página
     e poder restaurar uma delas, para não perder conteúdo por um erro de
     edição ou uma escrita por cima do que já tinha.
+17. Como usuário, quero marcar meus cadernos com tags e filtrar a lista por
+    uma delas, para organizar cadernos por assunto.
+18. Como usuário, quero buscar um termo e encontrar em qual caderno/página
+    ele aparece (no título ou no conteúdo), e ir direto pra lá.
 
 ## Requisitos Funcionais
 
@@ -134,6 +138,18 @@ individual na nuvem.
   pode listar as versões (data/hora), pré-visualizar o conteúdo de uma
   delas e restaurá-la — restaurar também tira um snapshot do estado atual
   antes de sobrescrever, então nunca é uma ação sem volta.
+- **FR-30**: Tags por caderno: usuário define uma lista livre de tags por
+  caderno (`PATCH /notebooks/{id}` com `tags: string[]`, substitui o
+  conjunto). Nomes são normalizados em minúsculas e sem espaço nas pontas;
+  tag reaproveitada em outro caderno do mesmo usuário não duplica. Lista de
+  cadernos pode ser filtrada por uma tag (`GET /notebooks?tag=`).
+- **FR-31**: Busca por termo entre todos os cadernos do usuário: compara o
+  termo (sem diferenciar maiúsculas/minúsculas) contra o nome do caderno,
+  o título da página e o texto puro do conteúdo da página (extraído do
+  JSON do editor). Resultado traz caderno, página e um trecho do conteúdo
+  em torno do termo encontrado; clicar num resultado abre o editor direto
+  naquela página. Busca pode ser combinada com o filtro de tag
+  (`GET /search?q=&tag=`).
 
 ## Requisitos Não-Funcionais
 
@@ -184,3 +200,8 @@ individual na nuvem.
       data/hora, seleciona uma para pré-visualizar o conteúdo e restaura —
       o conteúdo da página volta ao da versão escolhida e persiste após
       recarregar.
+- [x] Usuário adiciona tags a um caderno, vê os chips na lista e consegue
+      filtrar a lista de cadernos por uma tag.
+- [x] Usuário digita um termo na busca e encontra páginas cujo título,
+      nome do caderno ou conteúdo contêm o termo, com um trecho de
+      contexto; clicar no resultado abre o editor já na página certa.

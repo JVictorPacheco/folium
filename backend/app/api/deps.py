@@ -11,6 +11,7 @@ from app.repositories.notebook import NotebookRepository
 from app.repositories.page import PageRepository
 from app.repositories.page_version import PageVersionRepository
 from app.repositories.password_reset import PasswordResetRepository
+from app.repositories.tag import TagRepository
 from app.repositories.user import UserRepository
 from app.services.asset import AssetService
 from app.services.auth import AuthService
@@ -18,6 +19,8 @@ from app.services.content import ContentService
 from app.services.notebook import NotebookService
 from app.services.page import PageService
 from app.services.password_reset import PasswordResetService
+from app.services.search import SearchService
+from app.services.tag import TagService
 from app.storage.local import LocalStorage
 
 
@@ -26,7 +29,15 @@ def get_auth_service(db: AsyncSession = Depends(get_db)) -> AuthService:
 
 
 def get_notebook_service(db: AsyncSession = Depends(get_db)) -> NotebookService:
-    return NotebookService(NotebookRepository(db))
+    return NotebookService(NotebookRepository(db), TagRepository(db))
+
+
+def get_tag_service(db: AsyncSession = Depends(get_db)) -> TagService:
+    return TagService(TagRepository(db))
+
+
+def get_search_service(db: AsyncSession = Depends(get_db)) -> SearchService:
+    return SearchService(PageRepository(db))
 
 
 def get_page_service(db: AsyncSession = Depends(get_db)) -> PageService:

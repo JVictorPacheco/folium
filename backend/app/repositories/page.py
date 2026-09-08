@@ -1,13 +1,27 @@
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import contains_eager
 
 from app.models.notebook import Notebook
 from app.models.page import Page
+from app.models.tag import Tag
 
 
 class PageRepository:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+
+    async def list_for_user(self, user_id: int, tag: str | None = None) -> list[Page]:
+        stmt = (
+            select(Page)
+            .join(Notebook, Notebook.id == Page.notebook_id)
+            .where(Notebook.user_id == user_id)
+            .options(contains_eager(Page.notebook))
+        )
+        if tag:
+            stmt = stmt.join(Notebook.tags).where(Tag.name == tag.strip().lower())
+        result = await self._session.execute(stmt)
+        return list(result.unique().scalars().all())
 
     async def list_by_notebook(self, notebook_id: int) -> list[Page]:
         result = await self._session.execute(

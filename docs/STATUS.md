@@ -7,8 +7,9 @@
 MVP do **Folium** (caderno digital na nuvem) implementado e **testado de ponta
 a ponta** (smoke test manual + E2E aprovados). Backend e frontend completos,
 com modo dark e design system "caderno". Testes automatizados (unit, integração
-e E2E) e CI (GitHub Actions) configurados. Histórico de versões (Fase 17)
-implementado e verificado — ver "Registro de trabalho" abaixo.
+e E2E) e CI (GitHub Actions) configurados. Histórico de versões (Fase 17) e
+busca + tags (Fase 18) implementados e verificados — ver "Registro de
+trabalho" abaixo.
 
 ### O que está pronto
 
@@ -37,6 +38,9 @@ implementado e verificado — ver "Registro de trabalho" abaixo.
   - Histórico de versões por página: snapshot automático (troteado a
     cada 5min de uso) a cada autosave, modal "Histórico" no editor com
     lista de versões, prévia sob demanda e restauração sem perda (Fase 17).
+  - Tags por caderno (chips + filtro na lista) e busca por termo entre
+    todos os cadernos (nome, título de página e conteúdo), com trecho de
+    contexto e navegação direta pro resultado (Fase 18).
   - Remover imagem/PDF (botão `✕` sobre o item).
   - Linhas de caderno via CSS + modo de página fixo vs. contínuo + cor da linha.
   - Autosave com debounce + flush no `beforeunload` + indicador de status +
@@ -95,7 +99,7 @@ implementado e verificado — ver "Registro de trabalho" abaixo.
 
 ### Próximo passo
 
-- Busca e tags entre cadernos/páginas — em andamento (ver registro abaixo).
+- Definir o próximo foco (backlog abaixo ou novo pedido do usuário).
 
 ### Fora do MVP (backlog futuro)
 
@@ -243,3 +247,20 @@ Regras rápidas:
   pré-visualizar → restaurar → persiste após reload) testado via
   automação de navegador (Playwright) contra o app rodando. **Fase 17
   completa.**
+- **2026-09-08** — Fase 18 (busca e tags, branch `feature/busca-tags`):
+  tags M2M (`Tag` + `notebook_tags`, migração `0004`), nomes normalizados
+  em minúsculas, `PATCH /notebooks/{id}` com `tags: [...]` substitui o
+  conjunto, `GET /notebooks?tag=` filtra a lista, `GET /tags` lista as
+  tags do usuário. Busca (`GET /search?q=&tag=`) varre as páginas do
+  usuário em Python (título, nome do caderno, texto extraído do
+  `content_json`) e retorna trecho de contexto — decisão deliberada de
+  não usar SQL full-text dado o volume esperado por usuário. Frontend:
+  campo de busca com debounce na lista de cadernos (troca a lista por
+  resultados clicáveis, que abrem o editor direto na página via
+  `?page=` na URL), filtro de cadernos por tag, edição de tags via
+  `window.prompt` (mesmo padrão do renomear) com chips na listagem.
+  Verificado: 34 testes backend (8 novos) + 24 frontend (3 novos)
+  passando, `tsc` limpo, build OK, E2E verde, migração `0004` testada
+  contra Postgres real. Fluxo completo (tag num caderno → chip → filtro
+  → busca por conteúdo → clique abre a página certa) testado via
+  automação de navegador contra o app rodando. **Fase 18 completa.**

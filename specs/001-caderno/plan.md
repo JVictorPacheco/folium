@@ -246,3 +246,41 @@ assets(id PK, user_id FK->users ON DELETE CASCADE,
   em PDF — sem duplicar lógica de serialização). Restaurar atualiza o
   editor ao vivo (`editor.commands.setContent`) sem precisar recarregar a
   página.
+
+## Busca e tags (Fase 18)
+
+- **Tags M2M**: tabela `tags` (`user_id`, `name`, `UNIQUE(user_id, name)`)
+  + tabela de associação `notebook_tags` (`notebook_id`, `tag_id`), sem
+  modelo próprio (`sqlalchemy.Table` direto). Nomes normalizados em
+  minúsculas na escrita (`TagRepository.get_or_create_many`) — evita tag
+  duplicada por causa de maiúscula/minúscula sem precisar de índice
+  funcional (mais simples e portável entre Postgres/SQLite).
+- **Set-based, não incremental**: `PATCH /notebooks/{id}` com `tags: [...]`
+  substitui o conjunto inteiro (mais simples que endpoints dedicados de
+  adicionar/remover uma tag por vez) — get-or-create resolve os nomes
+  pra `Tag` antes do `NotebookRepository.update` fazer `setattr` na
+  relationship.
+- **Eager loading explícito**: `NotebookRepository` sempre usa
+  `selectinload(Notebook.tags)` e recarrega o objeto após `commit()` (em
+  vez de `session.refresh()`) — evita depender de relationship reload
+  automático em objetos já presentes no identity map, que não reflete a
+  ordem/estado atual de forma confiável.
+- **Busca é uma varredura em Python, não SQL full-text**: dado o volume
+  esperado por usuário (poucas dezenas de páginas, não milhares),
+  `SearchService` busca todas as páginas do usuário (`PageRepository.
+  list_for_user`, já isolado por `user_id` via join) e filtra em memória
+  — evita depender de recursos de full-text específicos de dialeto
+  (Postgres `tsvector` vs. SQLite, usado nos testes) e de indexação
+  adicional. `page_plain_text` extrai o texto puro do JSON do ProseMirror
+  (percorre `content`/`text` recursivamente) pra comparar contra o termo;
+  `_snippet` recorta ~40 caracteres ao redor da 1ª ocorrência.
+- **Frontend**: `NotebookListPage` ganha um campo de busca (debounce de
+  300ms via `useDebouncedCallback`) que, com o campo preenchido, troca a
+  lista de cadernos por uma lista de resultados (caderno · página +
+  trecho); clicar num resultado navega pra `/notebooks/{id}?page={id}`.
+  `EditorPage` lê o parâmetro `page` da URL (`useSearchParams`) pra abrir
+  direto naquela página em vez da primeira, e remove o parâmetro da URL
+  depois de aplicado. Editar tags de um caderno usa `window.prompt`
+  (lista separada por vírgula), mesmo padrão já usado pra renomear —
+  simples e consistente com o resto da tela, sem precisar de um editor de
+  chips dedicado.

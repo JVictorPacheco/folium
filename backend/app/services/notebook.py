@@ -1,5 +1,6 @@
 from app.models.notebook import Notebook
 from app.repositories.notebook import NotebookRepository
+from app.repositories.tag import TagRepository
 
 
 class NotebookNotFoundError(Exception):
@@ -7,17 +8,21 @@ class NotebookNotFoundError(Exception):
 
 
 class NotebookService:
-    def __init__(self, notebook_repo: NotebookRepository) -> None:
+    def __init__(self, notebook_repo: NotebookRepository, tag_repo: TagRepository) -> None:
         self._repo = notebook_repo
+        self._tag_repo = tag_repo
 
-    async def list(self, user_id: int) -> list[Notebook]:
-        return await self._repo.list_by_user(user_id)
+    async def list(self, user_id: int, tag: str | None = None) -> list[Notebook]:
+        return await self._repo.list_by_user(user_id, tag)
 
     async def create(self, user_id: int, data: dict) -> Notebook:
         return await self._repo.create(user_id, **data)
 
     async def update(self, notebook_id: int, user_id: int, data: dict) -> Notebook:
         notebook = await self._get_or_404(notebook_id, user_id)
+        if "tags" in data:
+            names = data["tags"] or []
+            data["tags"] = await self._tag_repo.get_or_create_many(user_id, names)
         return await self._repo.update(notebook, **data)
 
     async def delete(self, notebook_id: int, user_id: int) -> None:

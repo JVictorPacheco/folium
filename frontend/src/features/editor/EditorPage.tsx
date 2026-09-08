@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties } from "re
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { EditorContent, useEditor } from "@tiptap/react";
 import type { JSONContent } from "@tiptap/core";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { api } from "../../api/client";
 import type { Notebook, Page } from "../../api/types";
@@ -30,6 +30,8 @@ export default function EditorPage() {
   const notebookId = Number(id);
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedPageId = searchParams.get("page") ? Number(searchParams.get("page")) : null;
 
   const { data: notebook } = useQuery({
     queryKey: ["notebook", notebookId],
@@ -66,7 +68,14 @@ export default function EditorPage() {
   });
 
   useEffect(() => {
-    if (pages.length > 0 && activeId === null) setActiveId(pages[0].id);
+    if (pages.length === 0 || activeId !== null) return;
+    const requested = requestedPageId !== null && pages.some((p) => p.id === requestedPageId);
+    setActiveId(requested ? requestedPageId : pages[0].id);
+    if (requestedPageId !== null) {
+      searchParams.delete("page");
+      setSearchParams(searchParams, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pages, activeId]);
 
   const activePage = pages.find((p) => p.id === activeId) ?? null;
