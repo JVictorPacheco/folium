@@ -8,6 +8,7 @@ import { contentToHtml } from "./exportPdf";
 
 interface Props {
   pageId: number;
+  canRestore?: boolean;
   onClose: () => void;
   onRestored: (page: Page) => void;
 }
@@ -22,7 +23,7 @@ function formatDate(iso: string): string {
   });
 }
 
-export default function VersionHistoryModal({ pageId, onClose, onRestored }: Props) {
+export default function VersionHistoryModal({ pageId, canRestore = true, onClose, onRestored }: Props) {
   const qc = useQueryClient();
   const [previewId, setPreviewId] = useState<number | null>(null);
 
@@ -72,9 +73,11 @@ export default function VersionHistoryModal({ pageId, onClose, onRestored }: Pro
                   <button className="version-select" onClick={() => setPreviewId(v.id)}>
                     {formatDate(v.created_at)}
                   </button>
-                  <Button onClick={() => restore.mutate(v.id)} disabled={restore.isPending}>
-                    Restaurar
-                  </Button>
+                  {canRestore && (
+                    <Button onClick={() => restore.mutate(v.id)} disabled={restore.isPending}>
+                      Restaurar
+                    </Button>
+                  )}
                 </li>
               ))}
             </ul>

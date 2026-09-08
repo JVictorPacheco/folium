@@ -97,7 +97,7 @@ async def get_page_version(
 ) -> PageVersionDetailOut:
     try:
         return await service.get_version(page_id, version_id, user.id)
-    except PageVersionNotFoundError as exc:
+    except (PageNotFoundError, PageVersionNotFoundError) as exc:
         raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
 
 

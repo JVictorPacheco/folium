@@ -7,9 +7,9 @@
 MVP do **Folium** (caderno digital na nuvem) implementado e **testado de ponta
 a ponta** (smoke test manual + E2E aprovados). Backend e frontend completos,
 com modo dark e design system "caderno". Testes automatizados (unit, integração
-e E2E) e CI (GitHub Actions) configurados. Histórico de versões (Fase 17) e
-busca + tags (Fase 18) implementados e verificados — ver "Registro de
-trabalho" abaixo.
+e E2E) e CI (GitHub Actions) configurados. Histórico de versões (Fase 17),
+busca + tags (Fase 18) e compartilhamento de cadernos (Fase 19)
+implementados e verificados — ver "Registro de trabalho" abaixo.
 
 ### O que está pronto
 
@@ -41,6 +41,10 @@ trabalho" abaixo.
   - Tags por caderno (chips + filtro na lista) e busca por termo entre
     todos os cadernos (nome, título de página e conteúdo), com trecho de
     contexto e navegação direta pro resultado (Fase 18).
+  - Compartilhamento de caderno com outra conta (e-mail já cadastrado),
+    níveis `viewer`/`editor`; selo na listagem, modal de gerenciar
+    compartilhamentos (convidar/revogar), editor se adapta ao papel
+    (leitura sem toolbar/histórico-restaurar para `viewer`) (Fase 19).
   - Remover imagem/PDF (botão `✕` sobre o item).
   - Linhas de caderno via CSS + modo de página fixo vs. contínuo + cor da linha.
   - Autosave com debounce + flush no `beforeunload` + indicador de status +
@@ -53,8 +57,8 @@ trabalho" abaixo.
 
 ### Verificado (automatizado + manual)
 
-- ✅ Backend: **34 testes passando** (`pytest`).
-- ✅ Frontend: **24 testes passando** (`vitest`), `tsc --noEmit` limpo, build OK.
+- ✅ Backend: **43 testes passando** (`pytest`).
+- ✅ Frontend: **27 testes passando** (`vitest`), `tsc --noEmit` limpo, build OK.
 - ✅ **E2E (Playwright)**: fluxo cadastro → caderno → editar → recarregar passando.
 - ✅ **CI (GitHub Actions)**: `pytest` + `vitest`/`typecheck` rodam a cada PR/push.
 - ✅ `docker compose up --build` completo (db + backend + frontend).
@@ -104,9 +108,12 @@ trabalho" abaixo.
 ### Fora do MVP (backlog futuro)
 
 - Colaboração em tempo real (Yjs/Hocuspocus) — edição simultânea por duas
-  pessoas no mesmo caderno segue fora de escopo; compartilhar acesso (sem
-  edição simultânea) pode ser considerado no futuro.
+  pessoas no mesmo caderno (cursor um do outro, sync ao vivo) segue fora
+  de escopo. Compartilhamento de acesso (sem edição simultânea) já foi
+  implementado (Fase 19).
 - App mobile.
+- Compartilhamento por link público (sem exigir conta) — hoje exige que a
+  pessoa convidada já tenha conta no Folium.
 
 ## Como continuar (GitFlow)
 
@@ -266,3 +273,36 @@ Regras rápidas:
   automação de navegador contra o app rodando. **Fase 18 completa.**
 - ✅ **Release v0.4.0 em `main`** (PR #23, 2026-09-08): histórico de versões
   (Fase 17) e busca/tags (Fase 18).
+- **2026-09-08** — Fase 19 (compartilhamento de cadernos, branch
+  `feature/compartilhamento-cadernos`): tabela `notebook_shares`
+  (migração `0005`, `viewer`/`editor`, upsert em vez de duplicar convite).
+  Isolamento por dono foi refatorado pra um ponto único —
+  `NotebookAccessService` (`resolve`/`require` com `AccessLevel`
+  `OWNER`/`EDITOR`/`VIEWER`) — substituindo os filtros `user_id` que
+  antes estavam espalhados em cada repositório; `NotebookService`,
+  `PageService` e `ContentService` passaram a checar acesso por aí, com
+  configurações do caderno (nome/tags/cor/compartilhamento) continuando
+  owner-only. `GET /notebooks` une cadernos próprios + compartilhados
+  (com `role` anotado); busca (Fase 18) passou a cobrir cadernos
+  compartilhados também. Rotas `GET`/`POST`/`DELETE
+  /notebooks/{id}/shares` (owner-only; convite por e-mail exige conta
+  existente, recusa auto-compartilhamento). Frontend: selo de papel na
+  listagem, `ShareModal` (convidar/listar/revogar), editor se adapta ao
+  papel (esconde toolbar/histórico-restaurar/controles de dono pra quem
+  não é dono ou só tem leitura).
+  Bug real encontrado e corrigido durante verificação ao vivo com dois
+  usuários: `editor.setEditable(canEdit)` sem o 2º argumento dispara um
+  `update` do TipTap na própria troca de permissão, agendando um
+  autosave que dava 404 pra quem só tem leitura — UI mostrava "Erro ao
+  salvar" indevidamente. Corrigido com `editor.setEditable(canEdit,
+  false)`.
+  Verificado: 43 testes backend (9 novos) + 27 frontend (4 novos)
+  passando, `tsc` limpo, build OK, migração `0005` testada contra
+  Postgres real. Fluxo completo testado ao vivo alternando entre duas
+  contas reais (dona compartilha como editor → colega edita e salva →
+  dona rebaixa pra viewer → colega vê o conteúdo mas sem toolbar/
+  restaurar/edição). E2E (`smoke.spec.ts`) funcionalmente confirmado
+  (passou com timeout estendido; o timeout padrão de 5s ficou justo pela
+  lentidão do Docker Desktop nesta sessão após várias reconstruções de
+  imagem — descartado como regressão de código via teste direto do
+  endpoint com `curl`, que respondeu corretamente). **Fase 19 completa.**

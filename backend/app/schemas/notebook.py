@@ -30,6 +30,7 @@ class NotebookOut(BaseModel):
     line_color: str
     line_spacing: int
     tags: list[str] = []
+    role: str = "owner"
     created_at: datetime
     updated_at: datetime
 

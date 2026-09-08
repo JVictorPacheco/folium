@@ -1,3 +1,5 @@
+export type NotebookRole = "owner" | "editor" | "viewer";
+
 export interface Notebook {
   id: number;
   name: string;
@@ -5,8 +7,17 @@ export interface Notebook {
   line_color: string;
   line_spacing: number;
   tags: string[];
+  role: NotebookRole;
   created_at: string;
   updated_at: string;
+}
+
+export interface Share {
+  id: number;
+  notebook_id: number;
+  email: string;
+  permission: "viewer" | "editor";
+  created_at: string;
 }
 
 export interface Tag {

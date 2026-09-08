@@ -3,8 +3,6 @@ from datetime import datetime
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.notebook import Notebook
-from app.models.page import Page
 from app.models.page_version import PageVersion
 
 RETENTION_LIMIT = 50
@@ -14,24 +12,14 @@ class PageVersionRepository:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    async def list_by_page_for_user(self, page_id: int, user_id: int) -> list[PageVersion]:
+    async def list_by_page(self, page_id: int) -> list[PageVersion]:
         result = await self._session.execute(
-            select(PageVersion)
-            .join(Page, Page.id == PageVersion.page_id)
-            .join(Notebook, Notebook.id == Page.notebook_id)
-            .where(PageVersion.page_id == page_id, Notebook.user_id == user_id)
-            .order_by(PageVersion.created_at.desc())
+            select(PageVersion).where(PageVersion.page_id == page_id).order_by(PageVersion.created_at.desc())
         )
         return list(result.scalars().all())
 
-    async def get_for_user(self, version_id: int, user_id: int) -> PageVersion | None:
-        result = await self._session.execute(
-            select(PageVersion)
-            .join(Page, Page.id == PageVersion.page_id)
-            .join(Notebook, Notebook.id == Page.notebook_id)
-            .where(PageVersion.id == version_id, Notebook.user_id == user_id)
-        )
-        return result.scalar_one_or_none()
+    async def get(self, version_id: int) -> PageVersion | None:
+        return await self._session.get(PageVersion, version_id)
 
     async def has_recent(self, page_id: int, since: datetime) -> bool:
         result = await self._session.execute(
