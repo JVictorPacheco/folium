@@ -4,8 +4,22 @@ export interface Notebook {
   page_mode: "fixed" | "continuous";
   line_color: string;
   line_spacing: number;
+  tags: string[];
   created_at: string;
   updated_at: string;
+}
+
+export interface Tag {
+  id: number;
+  name: string;
+}
+
+export interface SearchResult {
+  notebook_id: number;
+  notebook_name: string;
+  page_id: number;
+  page_title: string;
+  snippet: string;
 }
 
 export interface Page {
@@ -17,6 +31,17 @@ export interface Page {
   revision: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface PageVersion {
+  id: number;
+  page_id: number;
+  revision: number;
+  created_at: string;
+}
+
+export interface PageVersionDetail extends PageVersion {
+  content_json: Record<string, unknown>;
 }
 
 export interface Asset {

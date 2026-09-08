@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties } from "re
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { EditorContent, useEditor } from "@tiptap/react";
 import type { JSONContent } from "@tiptap/core";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { api } from "../../api/client";
 import type { Notebook, Page } from "../../api/types";
@@ -12,6 +12,7 @@ import ThemeToggle from "../../components/ThemeToggle";
 import { editorExtensions } from "./extensions";
 import { exportNotebookPdf } from "./exportPdf";
 import Toolbar from "./Toolbar";
+import VersionHistoryModal from "./VersionHistoryModal";
 
 const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
 const DEFAULT_LINE_COLOR = "#D9CDB4";
@@ -29,6 +30,8 @@ export default function EditorPage() {
   const notebookId = Number(id);
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedPageId = searchParams.get("page") ? Number(searchParams.get("page")) : null;
 
   const { data: notebook } = useQuery({
     queryKey: ["notebook", notebookId],
@@ -65,7 +68,14 @@ export default function EditorPage() {
   });
 
   useEffect(() => {
-    if (pages.length > 0 && activeId === null) setActiveId(pages[0].id);
+    if (pages.length === 0 || activeId !== null) return;
+    const requested = requestedPageId !== null && pages.some((p) => p.id === requestedPageId);
+    setActiveId(requested ? requestedPageId : pages[0].id);
+    if (requestedPageId !== null) {
+      searchParams.delete("page");
+      setSearchParams(searchParams, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pages, activeId]);
 
   const activePage = pages.find((p) => p.id === activeId) ?? null;
@@ -170,6 +180,20 @@ export default function EditorPage() {
     }
   }
 
+  const [showHistory, setShowHistory] = useState(false);
+
+  function handleRestored(page: Page) {
+    revisionsRef.current[page.id] = page.revision;
+    qc.invalidateQueries({ queryKey: ["pages", notebookId] });
+    if (page.id !== activeId || !editor) return;
+    setRevision(page.revision);
+    const content =
+      page.content_json && Object.keys(page.content_json).length > 0
+        ? (page.content_json as JSONContent)
+        : EMPTY_DOC;
+    editor.commands.setContent(content, false);
+  }
+
   const lineSpacing = notebook?.line_spacing ?? 28;
   const [lineColorDraft, setLineColorDraft] = useState<string | null>(null);
   const customLineColor =
@@ -203,6 +227,9 @@ export default function EditorPage() {
         </label>
         <Button onClick={handleExportPdf} disabled={exporting}>
           {exporting ? "Exportando..." : "Exportar PDF"}
+        </Button>
+        <Button onClick={() => setShowHistory(true)} disabled={!activeId}>
+          Histórico
         </Button>
         <ThemeToggle />
         <span className={`save-status save-status--${status}`}>{STATUS_LABEL[status]}</span>
@@ -241,6 +268,14 @@ export default function EditorPage() {
           </div>
         </div>
       </main>
+
+      {showHistory && activeId && (
+        <VersionHistoryModal
+          pageId={activeId}
+          onClose={() => setShowHistory(false)}
+          onRestored={handleRestored}
+        />
+      )}
     </div>
   );
 }

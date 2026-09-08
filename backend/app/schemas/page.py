@@ -29,3 +29,16 @@ class PageContentUpdate(BaseModel):
 class PageContentOut(BaseModel):
     revision: int
     updated_at: datetime
+
+
+class PageVersionOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    page_id: int
+    revision: int
+    created_at: datetime
+
+
+class PageVersionDetailOut(PageVersionOut):
+    content_json: dict[str, Any]

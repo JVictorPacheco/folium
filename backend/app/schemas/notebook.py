@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.domain.enums import PageMode
 
@@ -17,6 +18,7 @@ class NotebookUpdate(BaseModel):
     page_mode: PageMode | None = None
     line_color: str | None = None
     line_spacing: int | None = Field(default=None, ge=16, le=64)
+    tags: list[str] | None = None
 
 
 class NotebookOut(BaseModel):
@@ -27,5 +29,14 @@ class NotebookOut(BaseModel):
     page_mode: PageMode
     line_color: str
     line_spacing: int
+    tags: list[str] = []
     created_at: datetime
     updated_at: datetime
+
+    @field_validator("tags", mode="before")
+    @classmethod
+    def _tag_names(cls, value: Any) -> Any:
+        if not value:
+            return value
+        names = [tag.name for tag in value] if not isinstance(value[0], str) else value
+        return sorted(names)
