@@ -12,6 +12,7 @@ import ThemeToggle from "../../components/ThemeToggle";
 import { editorExtensions } from "./extensions";
 import { exportNotebookPdf } from "./exportPdf";
 import Toolbar from "./Toolbar";
+import VersionHistoryModal from "./VersionHistoryModal";
 
 const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
 const DEFAULT_LINE_COLOR = "#D9CDB4";
@@ -170,6 +171,20 @@ export default function EditorPage() {
     }
   }
 
+  const [showHistory, setShowHistory] = useState(false);
+
+  function handleRestored(page: Page) {
+    revisionsRef.current[page.id] = page.revision;
+    qc.invalidateQueries({ queryKey: ["pages", notebookId] });
+    if (page.id !== activeId || !editor) return;
+    setRevision(page.revision);
+    const content =
+      page.content_json && Object.keys(page.content_json).length > 0
+        ? (page.content_json as JSONContent)
+        : EMPTY_DOC;
+    editor.commands.setContent(content, false);
+  }
+
   const lineSpacing = notebook?.line_spacing ?? 28;
   const [lineColorDraft, setLineColorDraft] = useState<string | null>(null);
   const customLineColor =
@@ -203,6 +218,9 @@ export default function EditorPage() {
         </label>
         <Button onClick={handleExportPdf} disabled={exporting}>
           {exporting ? "Exportando..." : "Exportar PDF"}
+        </Button>
+        <Button onClick={() => setShowHistory(true)} disabled={!activeId}>
+          Histórico
         </Button>
         <ThemeToggle />
         <span className={`save-status save-status--${status}`}>{STATUS_LABEL[status]}</span>
@@ -241,6 +259,14 @@ export default function EditorPage() {
           </div>
         </div>
       </main>
+
+      {showHistory && activeId && (
+        <VersionHistoryModal
+          pageId={activeId}
+          onClose={() => setShowHistory(false)}
+          onRestored={handleRestored}
+        />
+      )}
     </div>
   );
 }

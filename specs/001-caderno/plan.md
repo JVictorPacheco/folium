@@ -211,3 +211,38 @@ assets(id PK, user_id FK->users ON DELETE CASCADE,
 - **Fluxo**: clique em "Exportar PDF" → `flush()` do autosave da página
   atual (garante que o que está sendo editado entra no PDF) → monta a view
   de impressão → `window.print()` → desmonta no evento `afterprint`.
+
+## Histórico de versões (Fase 17)
+
+- **Tabela `page_versions`**: `id`, `page_id` (FK `pages`, `ON DELETE
+  CASCADE`), `content_json` (JSONB), `revision` (o `revision` da página no
+  momento do snapshot), `created_at`. Migração `0003`.
+- **Throttle no snapshot, não no save**: o autosave continua salvando a
+  cada debounce (1s) normalmente — o que muda é que, antes de sobrescrever
+  `content_json`, o `ContentService` decide se guarda o conteúdo *anterior*
+  como uma versão: só se a última versão daquela página tiver mais de
+  `SNAPSHOT_THROTTLE_MINUTES` (5min) ou não existir nenhuma ainda. Isso
+  evita uma linha por tecla digitada sem precisar de um job/cron separado —
+  a checagem é uma query (`has_recent`) no próprio caminho do save.
+- **Poda (retention)**: após cada `create` de versão, `prune(page_id,
+  keep=RETENTION_LIMIT)` (50) apaga as mais antigas além do limite — mantém
+  o crescimento da tabela limitado sem job externo.
+- **Restaurar não é destrutivo**: `ContentService.restore` sempre cria um
+  snapshot do estado *atual* da página antes de sobrescrever com o
+  conteúdo da versão escolhida (ignora o throttle) — desfazer uma
+  restauração por engano é só restaurar de novo pra esse snapshot.
+- **Isolamento**: toda leitura de versão (`list`, `get`, `restore`) passa
+  pelo `PageVersionRepository`, que faz `JOIN` `page_versions → pages →
+  notebooks` filtrando por `user_id` — mesmo padrão de isolamento das
+  demais entidades.
+- **Rotas**: `GET /pages/{id}/versions` (lista, sem `content_json`, mais
+  leve pra listagem), `GET /pages/{id}/versions/{version_id}` (detalhe,
+  com `content_json`, sob demanda pra prévia), `POST
+  /pages/{id}/versions/{version_id}/restore`.
+- **Frontend**: `VersionHistoryModal` — lista as versões (data/hora) +
+  botão "Restaurar" por item; ao selecionar uma versão, busca o detalhe e
+  renderiza a prévia reaproveitando `contentToHtml` (extraído de
+  `exportPdf.ts`, mesmo `DOMSerializer` do ProseMirror usado na exportação
+  em PDF — sem duplicar lógica de serialização). Restaurar atualiza o
+  editor ao vivo (`editor.commands.setContent`) sem precisar recarregar a
+  página.
