@@ -321,3 +321,5 @@ Regras rápidas:
   sintéticos com arquivos reais): colar persiste após reload; soltar dois
   arquivos de uma vez insere os dois, não um substituindo o outro. `tsc`
   limpo, 27 testes frontend passando. **Fase 20 completa.**
+- ✅ **Release v0.6.0 em `main`** (PR #33, 2026-09-08): colar e arrastar
+  imagem (Fase 20).
