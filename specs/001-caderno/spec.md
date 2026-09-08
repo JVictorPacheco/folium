@@ -70,6 +70,9 @@ individual na nuvem.
 20. Como usuário (com acesso compartilhado), quero ver os cadernos que
     compartilharam comigo junto com os meus, e saber se posso só ver ou
     também editar cada um.
+21. Como usuário, quero colar uma imagem copiada (Ctrl+V) ou arrastada do
+    computador direto na página, sem precisar passar pelo seletor de
+    arquivo.
 
 ## Requisitos Funcionais
 
@@ -168,6 +171,14 @@ individual na nuvem.
   (`role`: `owner`/`editor`/`viewer`). Busca (FR-31) também considera
   cadernos compartilhados. Tags (FR-30) continuam sendo só do dono — não
   aparecem nem são filtráveis para quem recebeu acesso.
+- **FR-34**: Imagem copiada para a área de transferência (Ctrl+C em
+  qualquer app, ferramenta de captura de tela, etc.) pode ser colada
+  (Ctrl+V) direto na página do editor — sobe pro mesmo storage de assets
+  usado pelo botão "Imagem" e aparece embutida no lugar do cursor.
+  Arrastar um ou mais arquivos de imagem do computador (mouse) e soltar
+  na página tem o mesmo efeito — cada arquivo vira uma imagem embutida,
+  na ordem em que foi solto. Só funciona com permissão de edição
+  (`editor`/dono); usuário com acesso `viewer` não pode colar nem soltar.
 
 ## Requisitos Não-Funcionais
 
@@ -235,3 +246,9 @@ individual na nuvem.
 - [x] Um usuário sem nenhuma relação com o caderno (nem dono, nem
       convidado) não o acessa de forma alguma (404), igual ao isolamento
       já existente entre usuários.
+- [x] Colar (Ctrl+V) uma imagem copiada insere ela embutida na página, no
+      lugar do cursor, com upload real (mesmo storage do botão "Imagem").
+- [x] Arrastar e soltar múltiplos arquivos de imagem de uma vez insere
+      todos, um do lado do outro (não um substituindo o outro).
+- [x] Usuário com acesso `viewer` não consegue colar/soltar imagem (editor
+      não-editável).

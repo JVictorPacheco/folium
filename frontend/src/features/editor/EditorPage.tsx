@@ -4,7 +4,7 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import type { JSONContent } from "@tiptap/core";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
-import { api } from "../../api/client";
+import { ApiError, api, uploadAsset } from "../../api/client";
 import type { Notebook, Page } from "../../api/types";
 import { useAutosave, type AutosaveStatus } from "../../hooks/useAutosave";
 import { Button } from "../../components/Button";
@@ -58,8 +58,66 @@ export default function EditorPage() {
   const role = notebook?.role ?? "owner";
   const isOwner = role === "owner";
   const canEdit = role !== "viewer";
+  const canEditRef = useRef(canEdit);
+  canEditRef.current = canEdit;
 
-  const editor = useEditor({ extensions: editorExtensions, content: EMPTY_DOC, editable: canEdit });
+  async function insertPastedImage(file: File) {
+    if (!editorRef.current) return;
+    try {
+      const asset = await uploadAsset(file, "image");
+      // Insere a imagem seguida de um parágrafo vazio, ambos numa mesma
+      // chamada — depois de inserir só a imagem, a seleção fica em cima do
+      // nó dela (é um átomo), então uma segunda imagem colada/arrastada em
+      // seguida substituiria a primeira em vez de ficar ao lado. Com o
+      // parágrafo, o cursor termina num texto de verdade.
+      editorRef.current
+        .chain()
+        .focus()
+        .insertContent([{ type: "image", attrs: { src: asset.url } }, { type: "paragraph" }])
+        .run();
+    } catch (err) {
+      window.alert(err instanceof ApiError ? err.message : "Não foi possível colar a imagem.");
+    }
+  }
+
+  // Processa um arquivo de cada vez (aguarda upload + inserção completarem
+  // antes do próximo) — inserir em paralelo faz o segundo substituir o
+  // primeiro, porque a seleção fica em cima do nó recém-inserido.
+  async function insertPastedImages(files: File[]) {
+    for (const file of files) {
+      await insertPastedImage(file);
+    }
+  }
+
+  const editor = useEditor({
+    extensions: editorExtensions,
+    content: EMPTY_DOC,
+    editable: canEdit,
+    editorProps: {
+      handlePaste: (_view, event) => {
+        if (!canEditRef.current) return false;
+        const items = Array.from(event.clipboardData?.items ?? []);
+        const imageItem = items.find((item) => item.type.startsWith("image/"));
+        const file = imageItem?.getAsFile();
+        if (!file) return false;
+        event.preventDefault();
+        void insertPastedImage(file);
+        return true;
+      },
+      handleDrop: (_view, event) => {
+        if (!canEditRef.current) return false;
+        const files = Array.from(event.dataTransfer?.files ?? []).filter((f) =>
+          f.type.startsWith("image/"),
+        );
+        if (files.length === 0) return false;
+        event.preventDefault();
+        void insertPastedImages(files);
+        return true;
+      },
+    },
+  });
+  const editorRef = useRef(editor);
+  editorRef.current = editor;
 
   useEffect(() => {
     // `emitUpdate: false` — trocar editable não é uma edição de conteúdo;
