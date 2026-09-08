@@ -17,11 +17,9 @@ const schema = getSchema(editorExtensions);
  * dependa de `style` (cor, fonte, tamanho, largura da imagem) sai sem
  * formatação nenhuma. Com o DOM real do navegador isso funciona certo.
  */
-function pageHtml(page: Page): string {
+export function contentToHtml(content: Record<string, unknown> | null | undefined): string {
   const doc =
-    page.content_json && Object.keys(page.content_json).length > 0
-      ? (page.content_json as JSONContent)
-      : EMPTY_PARAGRAPH;
+    content && Object.keys(content).length > 0 ? (content as JSONContent) : EMPTY_PARAGRAPH;
   try {
     const node = ProseMirrorNode.fromJSON(schema, doc);
     const fragment = DOMSerializer.fromSchema(schema).serializeFragment(node.content, { document });
@@ -29,9 +27,13 @@ function pageHtml(page: Page): string {
     wrapper.appendChild(fragment);
     return wrapper.innerHTML;
   } catch {
-    // Conteúdo corrompido/incompatível não deve travar a exportação inteira.
+    // Conteúdo corrompido/incompatível não deve travar a serialização inteira.
     return "<p></p>";
   }
+}
+
+function pageHtml(page: Page): string {
+  return contentToHtml(page.content_json);
 }
 
 /**

@@ -3,8 +3,20 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.api.deps import get_content_service, get_page_service
 from app.core.deps import get_current_user
 from app.models.user import User
-from app.schemas.page import PageContentOut, PageContentUpdate, PageCreate, PageOut
-from app.services.content import ContentService, PageNotFoundError, RevisionConflictError
+from app.schemas.page import (
+    PageContentOut,
+    PageContentUpdate,
+    PageCreate,
+    PageOut,
+    PageVersionDetailOut,
+    PageVersionOut,
+)
+from app.services.content import (
+    ContentService,
+    PageNotFoundError,
+    PageVersionNotFoundError,
+    RevisionConflictError,
+)
 from app.services.page import PageNotFoundError as PageNotFound
 from app.services.page import PageService
 
@@ -62,6 +74,46 @@ async def update_page_content(
     except RevisionConflictError as exc:
         raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
     return PageContentOut(revision=page.revision, updated_at=page.updated_at)
+
+
+@router.get("/pages/{page_id}/versions", response_model=list[PageVersionOut])
+async def list_page_versions(
+    page_id: int,
+    user: User = Depends(get_current_user),
+    service: ContentService = Depends(get_content_service),
+) -> list[PageVersionOut]:
+    try:
+        return await service.list_versions(page_id, user.id)
+    except PageNotFoundError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
+
+
+@router.get("/pages/{page_id}/versions/{version_id}", response_model=PageVersionDetailOut)
+async def get_page_version(
+    page_id: int,
+    version_id: int,
+    user: User = Depends(get_current_user),
+    service: ContentService = Depends(get_content_service),
+) -> PageVersionDetailOut:
+    try:
+        return await service.get_version(page_id, version_id, user.id)
+    except PageVersionNotFoundError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
+
+
+@router.post("/pages/{page_id}/versions/{version_id}/restore", response_model=PageOut)
+async def restore_page_version(
+    page_id: int,
+    version_id: int,
+    user: User = Depends(get_current_user),
+    service: ContentService = Depends(get_content_service),
+) -> PageOut:
+    try:
+        return await service.restore(page_id, version_id, user.id)
+    except PageNotFoundError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
+    except PageVersionNotFoundError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
 
 
 @router.delete("/pages/{page_id}", status_code=status.HTTP_204_NO_CONTENT)

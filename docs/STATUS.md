@@ -1,13 +1,14 @@
 # Status do Projeto
 
-> Ponto de retomada. Atualizado em: 2026-09-04.
+> Ponto de retomada. Atualizado em: 2026-09-08.
 
 ## Onde paramos
 
 MVP do **Folium** (caderno digital na nuvem) implementado e **testado de ponta
 a ponta** (smoke test manual + E2E aprovados). Backend e frontend completos,
 com modo dark e design system "caderno". Testes automatizados (unit, integração
-e E2E) e CI (GitHub Actions) configurados.
+e E2E) e CI (GitHub Actions) configurados. Histórico de versões (Fase 17)
+implementado e verificado — ver "Registro de trabalho" abaixo.
 
 ### O que está pronto
 
@@ -33,6 +34,9 @@ e E2E) e CI (GitHub Actions) configurados.
   - Exportar caderno inteiro como PDF (impressão nativa do navegador), com
     linhas/cores/fontes do caderno preservadas — cada página do caderno vira
     uma página do PDF (Fase 16).
+  - Histórico de versões por página: snapshot automático (troteado a
+    cada 5min de uso) a cada autosave, modal "Histórico" no editor com
+    lista de versões, prévia sob demanda e restauração sem perda (Fase 17).
   - Remover imagem/PDF (botão `✕` sobre o item).
   - Linhas de caderno via CSS + modo de página fixo vs. contínuo + cor da linha.
   - Autosave com debounce + flush no `beforeunload` + indicador de status +
@@ -91,13 +95,14 @@ e E2E) e CI (GitHub Actions) configurados.
 
 ### Próximo passo
 
-- Definir o próximo foco (backlog abaixo ou novo pedido do usuário).
-- (opcional) Proteção de branch no GitHub (bloquear merge com CI falhando).
+- Busca e tags entre cadernos/páginas — em andamento (ver registro abaixo).
 
 ### Fora do MVP (backlog futuro)
 
-- Colaboração em tempo real (Yjs/Hocuspocus).
-- Exportar para PDF, histórico de versões, busca, tags, app mobile.
+- Colaboração em tempo real (Yjs/Hocuspocus) — edição simultânea por duas
+  pessoas no mesmo caderno segue fora de escopo; compartilhar acesso (sem
+  edição simultânea) pode ser considerado no futuro.
+- App mobile.
 
 ## Como continuar (GitFlow)
 
@@ -217,3 +222,24 @@ Regras rápidas:
   real de cada) continuam como `<img>`/`<iframe>` de verdade no editor, com
   as alças de mover/redimensionar, coexistindo na mesma página e
   sobrevivendo a reload. Nenhuma regressão encontrada.
+- **2026-09-08** — Proteção de branch configurada no GitHub (`main` e
+  `develop`): merge bloqueado enquanto os checks de CI (`Backend (pytest)`,
+  `Frontend (vitest + typecheck)`) não passarem; force-push e exclusão de
+  branch desabilitados. Limpeza de arquivos `desktop.ini` que o Google
+  Drive File Stream vinha soltando dentro de `.git/refs/**` (corrompiam
+  `git pull`/`git branch -a`) — cosmético do Windows/Drive, recriado
+  automaticamente, sem relação com o conteúdo do repositório.
+- **2026-09-08** — Fase 17 (histórico de versões, branch
+  `feature/historico-versoes`): tabela `page_versions` (migração `0003`) +
+  `PageVersionRepository` + `ContentService` guardando o conteúdo anterior
+  a cada save, troteado a 5min (evita 1 versão por tecla) com poda das 50
+  mais antigas. Rotas de listar/detalhar/restaurar versão, isoladas por
+  usuário. Frontend: `VersionHistoryModal` (lista + prévia sob demanda via
+  `contentToHtml`, extraído de `exportPdf.ts`) + botão "Histórico" no
+  editor; restaurar atualiza o editor ao vivo sem recarregar. Verificado:
+  26 testes backend (5 novos) + 21 frontend (3 novos) passando, `tsc`
+  limpo, build OK, E2E verde, migração `0003` testada contra Postgres real
+  (`docker compose up`). Fluxo completo (digitar → 1ª versão criada →
+  pré-visualizar → restaurar → persiste após reload) testado via
+  automação de navegador (Playwright) contra o app rodando. **Fase 17
+  completa.**

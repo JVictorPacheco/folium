@@ -209,6 +209,44 @@
       correto ("📄 relatorio.pdf") na exportação. Confirmado pelo usuário no
       navegador. **Fase 16 completa.**
 
+## Fase 17 — Histórico de versões
+
+> Decisão de arquitetura (2026-09-08): snapshot "troteado" no próprio
+> caminho do autosave (só guarda uma versão se a última tiver mais de
+> 5min), em vez de uma versão por save — evita explosão de linhas sem
+> precisar de job/cron. Restaurar sempre tira um snapshot do estado atual
+> antes de sobrescrever, então nunca é destrutivo.
+
+- [x] T17.1 Modelo `PageVersion` + migração `0003` (tabela `page_versions`,
+      FK `page_id` com `ON DELETE CASCADE`, índice em `page_id`).
+- [x] T17.2 `PageVersionRepository`: `list_by_page_for_user`,
+      `get_for_user` (isolamento via `JOIN` até `notebooks.user_id`),
+      `has_recent` (throttle), `create`, `prune` (retenção de 50).
+- [x] T17.3 `ContentService`: snapshot do conteúdo anterior antes de cada
+      `update`, se a última versão tiver mais de 5min (ou não existir);
+      `list_versions`, `get_version`, `restore` (snapshota o estado atual
+      antes de sobrescrever).
+- [x] T17.4 Rotas: `GET /pages/{id}/versions`, `GET
+      /pages/{id}/versions/{version_id}`, `POST
+      /pages/{id}/versions/{version_id}/restore`.
+- [x] T17.5 Testes backend: throttle (não cria versão em edição imediata
+      seguinte, cria após a janela passar), restore reverte conteúdo e
+      snapshota o estado pré-restore, isolamento entre usuários (404),
+      versão não encontrada quando `page_id` não bate.
+- [x] T17.6 Frontend: `contentToHtml` extraído de `exportPdf.ts`
+      (reutilizável fora da exportação) + `VersionHistoryModal` (lista de
+      versões, prévia sob demanda, botão restaurar) + botão "Histórico" no
+      topbar do editor + `handleRestored` atualiza o editor ao vivo sem
+      precisar recarregar a página.
+- [x] T17.7 Verificação: 26 testes backend + 21 frontend passando, `tsc`
+      limpo, build OK, E2E (Playwright) verde. Migração `0003` testada
+      contra Postgres real (`docker compose up`). Fluxo completo testado
+      via automação de navegador (Playwright) contra o app rodando:
+      digitar → autosave cria 1ª versão (snapshot do conteúdo anterior) →
+      abrir Histórico → pré-visualizar → restaurar → editor volta ao
+      conteúdo restaurado → conteúdo persiste após recarregar a página.
+      **Fase 17 completa.**
+
 ## Grupos paralelos seguros
 
 - Fase 1: T1.1 ∥ T1.2 ∥ T1.3

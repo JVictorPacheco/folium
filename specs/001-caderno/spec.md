@@ -23,8 +23,10 @@ individual na nuvem.
 
 ## Não-metas (fora do MVP)
 
-- Colaboração em tempo real (Yjs/Hocuspocus) — evolução futura.
-- Exportar para PDF, versões/histórico visual, busca, tags, app mobile.
+- Colaboração em tempo real (Yjs/Hocuspocus) — dois usuários editando o
+  mesmo caderno ao mesmo tempo não está no escopo. Compartilhar um caderno
+  para acesso (não simultâneo) pode ser considerado no futuro.
+- App mobile.
 - Compartilhamento entre usuários.
 
 ## Personas
@@ -55,6 +57,9 @@ individual na nuvem.
     com um estilo padronizado em vez da formatação crua do navegador.
 15. Como usuário, quero exportar meu caderno inteiro como PDF, mantendo a
     aparência das linhas e do papel, para ter uma cópia autêntica fora do app.
+16. Como usuário, quero ver um histórico de versões anteriores de uma página
+    e poder restaurar uma delas, para não perder conteúdo por um erro de
+    edição ou uma escrita por cima do que já tinha.
 
 ## Requisitos Funcionais
 
@@ -121,6 +126,14 @@ individual na nuvem.
   tamanho definido (se redimensionados), sempre no fluxo normal do
   documento — a posição "flutuante" (FR-24) não é preservada na impressão
   nesta versão.
+- **FR-29**: Histórico de versões por página: a cada save do autosave, se a
+  última versão salva daquela página tiver mais de 5 minutos (ou não
+  existir ainda), o conteúdo *anterior* ao save é guardado como uma nova
+  versão — evita uma versão por tecla digitada. Mantém no máximo as 50
+  versões mais recentes por página (mais antigas são descartadas). Usuário
+  pode listar as versões (data/hora), pré-visualizar o conteúdo de uma
+  delas e restaurá-la — restaurar também tira um snapshot do estado atual
+  antes de sobrescrever, então nunca é uma ação sem volta.
 
 ## Requisitos Não-Funcionais
 
@@ -164,3 +177,10 @@ individual na nuvem.
       todas as páginas do caderno, uma por página, linhas de fundo visíveis.
 - [x] PDF gerado preserva formatação rica (negrito, cor, tamanho/fonte) e
       imagem/PDF redimensionados; sem a interface do app (toolbar/sidebar).
+- [x] Editar uma página repetidamente em poucos minutos não cria uma versão
+      de histórico por edição (janela de 5min); passado esse tempo, a
+      próxima edição cria uma nova versão.
+- [x] Usuário abre o histórico de uma página, vê a lista de versões com
+      data/hora, seleciona uma para pré-visualizar o conteúdo e restaura —
+      o conteúdo da página volta ao da versão escolhida e persiste após
+      recarregar.

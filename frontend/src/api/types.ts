@@ -19,6 +19,17 @@ export interface Page {
   updated_at: string;
 }
 
+export interface PageVersion {
+  id: number;
+  page_id: number;
+  revision: number;
+  created_at: string;
+}
+
+export interface PageVersionDetail extends PageVersion {
+  content_json: Record<string, unknown>;
+}
+
 export interface Asset {
   id: number;
   kind: "image" | "pdf";

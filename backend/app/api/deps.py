@@ -9,6 +9,7 @@ from app.notifications.smtp import SmtpEmailSender
 from app.repositories.asset import AssetRepository
 from app.repositories.notebook import NotebookRepository
 from app.repositories.page import PageRepository
+from app.repositories.page_version import PageVersionRepository
 from app.repositories.password_reset import PasswordResetRepository
 from app.repositories.user import UserRepository
 from app.services.asset import AssetService
@@ -33,7 +34,7 @@ def get_page_service(db: AsyncSession = Depends(get_db)) -> PageService:
 
 
 def get_content_service(db: AsyncSession = Depends(get_db)) -> ContentService:
-    return ContentService(PageRepository(db))
+    return ContentService(PageRepository(db), PageVersionRepository(db))
 
 
 def get_asset_service(db: AsyncSession = Depends(get_db)) -> AssetService:
