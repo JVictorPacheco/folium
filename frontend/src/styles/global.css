@@ -370,6 +370,17 @@ a:visited {
   font-weight: 700;
 }
 
+.page-item-title-input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  color: inherit;
+  background: var(--paper-bg);
+  border: 1px solid var(--active-bg);
+  border-radius: 4px;
+  padding: 0.1rem 0.3rem;
+}
+
 .paper-area {
   overflow: auto;
   display: flex;

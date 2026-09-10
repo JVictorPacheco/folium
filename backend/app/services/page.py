@@ -21,6 +21,12 @@ class PageService:
         position = await self._page_repo.next_position(notebook_id)
         return await self._page_repo.create(notebook_id, title, position)
 
+    async def rename(self, page_id: int, user_id: int, title: str) -> Page:
+        page = await self._get_page_or_404(page_id)
+        await self._require(page.notebook_id, user_id, AccessLevel.EDITOR)
+        page.title = title.strip() or page.title
+        return await self._page_repo.save(page)
+
     async def delete(self, page_id: int, user_id: int) -> None:
         page = await self._get_page_or_404(page_id)
         await self._require(page.notebook_id, user_id, AccessLevel.EDITOR)

@@ -8,6 +8,7 @@ from app.schemas.page import (
     PageContentUpdate,
     PageCreate,
     PageOut,
+    PageUpdate,
     PageVersionDetailOut,
     PageVersionOut,
 )
@@ -56,6 +57,19 @@ async def get_page(
 ) -> PageOut:
     try:
         return await service.get_for_user(page_id, user.id)
+    except PageNotFound as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
+
+
+@router.patch("/pages/{page_id}", response_model=PageOut)
+async def rename_page(
+    page_id: int,
+    body: PageUpdate,
+    user: User = Depends(get_current_user),
+    service: PageService = Depends(get_page_service),
+) -> PageOut:
+    try:
+        return await service.rename(page_id, user.id, body.title)
     except PageNotFound as exc:
         raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
 
