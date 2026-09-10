@@ -27,8 +27,37 @@ async def test_page_lifecycle(client: AsyncClient) -> None:
     assert resp.status_code == 200
     assert len(resp.json()) == 1
 
+    resp = await client.patch(
+        f"/api/v1/pages/{page['id']}", json={"title": "Renomeada"}, headers=headers
+    )
+    assert resp.status_code == 200
+    assert resp.json()["title"] == "Renomeada"
+
+    resp = await client.get(f"/api/v1/pages/{page['id']}", headers=headers)
+    assert resp.json()["title"] == "Renomeada"
+
     resp = await client.delete(f"/api/v1/pages/{page['id']}", headers=headers)
     assert resp.status_code == 204
+
+
+async def test_rename_page_requires_editor_access(client: AsyncClient) -> None:
+    owner_token = await register(client, email="owner-rename@example.com")
+    notebook_id = await _make_notebook(client, owner_token)
+    page = (
+        await client.post(
+            f"/api/v1/notebooks/{notebook_id}/pages",
+            json={"title": "Página 1"},
+            headers=auth_headers(owner_token),
+        )
+    ).json()
+
+    other_token = await register(client, email="other-rename@example.com")
+    resp = await client.patch(
+        f"/api/v1/pages/{page['id']}",
+        json={"title": "Invasão"},
+        headers=auth_headers(other_token),
+    )
+    assert resp.status_code == 404
 
 
 async def test_content_autosave_and_revision(client: AsyncClient) -> None:

@@ -214,6 +214,33 @@ export default function EditorPage() {
     },
   });
 
+  const renamePage = useMutation({
+    mutationFn: ({ pageId, title }: { pageId: number; title: string }) =>
+      api.patch<Page>(`/api/v1/pages/${pageId}`, { title }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pages", notebookId] });
+    },
+  });
+
+  const [editingPageId, setEditingPageId] = useState<number | null>(null);
+  const [pageTitleDraft, setPageTitleDraft] = useState("");
+
+  function startRenamePage(p: Page) {
+    if (!canEdit) return;
+    setEditingPageId(p.id);
+    setPageTitleDraft(p.title);
+  }
+
+  function commitRenamePage() {
+    const pageId = editingPageId;
+    setEditingPageId(null);
+    if (pageId === null) return;
+    const title = pageTitleDraft.trim();
+    const current = pages.find((p) => p.id === pageId);
+    if (!title || title === current?.title) return;
+    renamePage.mutate({ pageId, title });
+  }
+
   const setLineColor = useMutation({
     mutationFn: (color: string) =>
       api.patch<Notebook>(`/api/v1/notebooks/${notebookId}`, { line_color: color }),
@@ -322,7 +349,30 @@ export default function EditorPage() {
             className={`page-item${p.id === activeId ? " active" : ""}`}
             onClick={() => selectPage(p.id)}
           >
-            <span>{p.title}</span>
+            {editingPageId === p.id ? (
+              <input
+                className="page-item-title-input"
+                autoFocus
+                value={pageTitleDraft}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) => setPageTitleDraft(e.target.value)}
+                onBlur={commitRenamePage}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") commitRenamePage();
+                  if (e.key === "Escape") setEditingPageId(null);
+                }}
+              />
+            ) : (
+              <span
+                onDoubleClick={(e) => {
+                  e.stopPropagation();
+                  startRenamePage(p);
+                }}
+                title={canEdit ? "Clique duas vezes para renomear" : undefined}
+              >
+                {p.title}
+              </span>
+            )}
             {canEdit && (
               <button
                 className="icon-btn"

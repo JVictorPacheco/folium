@@ -8,6 +8,10 @@ class PageCreate(BaseModel):
     title: str = Field(default="Sem título", max_length=255)
 
 
+class PageUpdate(BaseModel):
+    title: str = Field(min_length=1, max_length=255)
+
+
 class PageOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
