@@ -41,7 +41,7 @@ async def test_page_lifecycle(client: AsyncClient) -> None:
 
 
 async def test_rename_page_requires_editor_access(client: AsyncClient) -> None:
-    owner_token = await register(client)
+    owner_token = await register(client, email="owner-rename@example.com")
     notebook_id = await _make_notebook(client, owner_token)
     page = (
         await client.post(
@@ -51,7 +51,7 @@ async def test_rename_page_requires_editor_access(client: AsyncClient) -> None:
         )
     ).json()
 
-    other_token = await register(client)
+    other_token = await register(client, email="other-rename@example.com")
     resp = await client.patch(
         f"/api/v1/pages/{page['id']}",
         json={"title": "Invasão"},
