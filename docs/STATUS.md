@@ -58,6 +58,12 @@ trabalho" abaixo.
 - **Infra**: `DATABASE_URL` configurável via `.env` da raiz (`docker-compose.yml`)
   — sem `.env`, usa o Postgres local do compose; com `.env`, aponta pra um
   Postgres gerenciado (testado com Supabase via Session Pooler).
+- **Produção (fora deste repo)**: hoje hospedado manualmente em
+  `folium.okurumin.com.br` atrás de Cloudflare. Não há automação de deploy
+  neste repositório — o CI (`.github/workflows/ci.yml`) só roda testes. O
+  processo (`docker compose up`) precisa estar cadastrado no
+  watchdog/supervisor da máquina host pra voltar a subir sozinho depois de
+  um reboot; ver incidente de 2026-09-15 no registro de trabalho abaixo.
 
 ### Verificado (automatizado + manual)
 
@@ -327,3 +333,14 @@ Regras rápidas:
   limpo, 27 testes frontend passando. **Fase 20 completa.**
 - ✅ **Release v0.6.0 em `main`** (PR #33, 2026-09-08): colar e arrastar
   imagem (Fase 20).
+- **2026-09-15** — Incidente de indisponibilidade em produção
+  (`folium.okurumin.com.br`): login retornando `502 Bad Gateway` do
+  Cloudflare. Diagnóstico descartou bug de código — `main` sincronizada com
+  `develop`, CI verde, sem PRs pendentes; a própria página de erro do
+  Cloudflare confirmava "Host: Error" (origem inacessível, Cloudflare e
+  navegador OK). Causa real, confirmada pelo administrador da máquina host:
+  reboot da máquina e o processo do Folium não estava cadastrado no
+  watchdog/supervisor, então não voltou a subir sozinho. Resolvido
+  registrando o processo no watchdog. Documentado aqui porque essa
+  dependência de infra de produção não estava registrada em lugar nenhum
+  do repositório (ver nota em "Infra" acima).
