@@ -73,6 +73,10 @@ individual na nuvem.
 21. Como usuário, quero colar uma imagem copiada (Ctrl+V) ou arrastada do
     computador direto na página, sem precisar passar pelo seletor de
     arquivo.
+22. Como usuário, quero desfazer e refazer minhas últimas ações de edição
+    (texto, formatação, imagem/PDF inserido, etc.) uma a uma, tanto por
+    atalho de teclado quanto por um botão visível na toolbar, para corrigir
+    um erro sem precisar recorrer ao histórico de versões.
 
 ## Requisitos Funcionais
 
@@ -179,6 +183,12 @@ individual na nuvem.
   na página tem o mesmo efeito — cada arquivo vira uma imagem embutida,
   na ordem em que foi solto. Só funciona com permissão de edição
   (`editor`/dono); usuário com acesso `viewer` não pode colar nem soltar.
+- **FR-35**: Desfazer/refazer ação a ação no editor: botões "Desfazer" e
+  "Refazer" na toolbar (além do atalho já existente `Ctrl+Z`/`Ctrl+Shift+Z`
+  do histórico nativo do ProseMirror), desabilitados quando não há o que
+  desfazer/refazer. Escopo é a sessão de edição atual (não persiste entre
+  reloads) — complementar ao histórico de versões (FR-29), que é mais
+  grosso (snapshots troteados) e sobrevive a reload.
 
 ## Requisitos Não-Funcionais
 
@@ -252,3 +262,7 @@ individual na nuvem.
       todos, um do lado do outro (não um substituindo o outro).
 - [x] Usuário com acesso `viewer` não consegue colar/soltar imagem (editor
       não-editável).
+- [x] Botão "Desfazer" reverte a última ação de edição (digitação,
+      formatação, inserção); "Refazer" reaplica; ambos desabilitados
+      quando não há o que desfazer/refazer; atalhos de teclado continuam
+      funcionando.
