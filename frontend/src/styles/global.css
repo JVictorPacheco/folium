@@ -640,6 +640,16 @@ a:visited {
   font-weight: 700;
 }
 
+.toolbar-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.toolbar-btn:disabled:hover {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
 .toolbar-select {
   background: var(--surface);
   border: 1.5px solid var(--border);

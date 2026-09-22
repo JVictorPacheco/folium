@@ -380,6 +380,23 @@
       substituindo o outro) — confirmado antes e depois da correção do
       T20.2. **Fase 20 completa.**
 
+## Fase 21 — Desfazer e refazer no editor
+
+> Pedido do usuário (2026-09-22): expor desfazer/refazer ação a ação, tipo
+> Excel/Word — descoberto que o histórico do ProseMirror (via `StarterKit`)
+> já funciona por atalho (`Ctrl+Z`/`Ctrl+Shift+Z`) desde sempre, só faltava
+> botão visível na toolbar. Sem dependência nova, sem mudança de backend.
+
+- [x] T21.1 Botões "Desfazer" (↶) e "Refazer" (↷) na `Toolbar`, chamando
+      `editor.chain().focus().undo()/redo().run()`, desabilitados via
+      `editor.can().undo()`/`.redo()`.
+- [x] T21.2 Verificação: `tsc --noEmit` limpo, suíte de testes frontend
+      passando (sem regressão), build OK. Confirmado no navegador: digitar
+      texto → "Desfazer" reverte ação a ação (fica desabilitado quando não
+      há mais o que desfazer) → "Refazer" reaplica; `Ctrl+Z`/`Ctrl+Shift+Z`
+      continuam funcionando; botões somem para acesso `viewer` (mesma
+      regra da toolbar inteira). **Fase 21 completa.**
+
 ## Grupos paralelos seguros
 
 - Fase 1: T1.1 ∥ T1.2 ∥ T1.3
