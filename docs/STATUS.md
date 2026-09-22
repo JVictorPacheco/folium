@@ -1,6 +1,6 @@
 # Status do Projeto
 
-> Ponto de retomada. Atualizado em: 2026-09-08.
+> Ponto de retomada. Atualizado em: 2026-09-22.
 
 ## Onde paramos
 
@@ -8,9 +8,9 @@ MVP do **Folium** (caderno digital na nuvem) implementado e **testado de ponta
 a ponta** (smoke test manual + E2E aprovados). Backend e frontend completos,
 com modo dark e design system "caderno". Testes automatizados (unit, integração
 e E2E) e CI (GitHub Actions) configurados. Histórico de versões (Fase 17),
-busca + tags (Fase 18), compartilhamento de cadernos (Fase 19) e colar/
-arrastar imagem (Fase 20) implementados e verificados — ver "Registro de
-trabalho" abaixo.
+busca + tags (Fase 18), compartilhamento de cadernos (Fase 19), colar/
+arrastar imagem (Fase 20) e desfazer/refazer no editor (Fase 21)
+implementados e verificados — ver "Registro de trabalho" abaixo.
 
 ### O que está pronto
 
@@ -49,6 +49,9 @@ trabalho" abaixo.
   - Colar (Ctrl+V) ou arrastar arquivo(s) de imagem do computador direto
     na página, sem passar pelo seletor de arquivo — reaproveita o mesmo
     upload do botão "Imagem"; bloqueado para acesso `viewer` (Fase 20).
+  - Desfazer/Refazer ação a ação no editor: botões na toolbar (além do
+    atalho `Ctrl+Z`/`Ctrl+Shift+Z` já existente, herdado de fábrica do
+    histórico do ProseMirror via `StarterKit`) (Fase 21).
   - Remover imagem/PDF (botão `✕` sobre o item).
   - Linhas de caderno via CSS + modo de página fixo vs. contínuo + cor da linha.
   - Autosave com debounce + flush no `beforeunload` + indicador de status +
@@ -327,3 +330,23 @@ Regras rápidas:
   limpo, 27 testes frontend passando. **Fase 20 completa.**
 - ✅ **Release v0.6.0 em `main`** (PR #33, 2026-09-08): colar e arrastar
   imagem (Fase 20).
+- **2026-09-22** — Fase 21 (desfazer/refazer no editor, branch
+  `feature/desfazer-refazer`, a pedido do usuário): descoberto que o
+  histórico do ProseMirror já vinha de fábrica no `StarterKit` (atalhos
+  `Ctrl+Z`/`Ctrl+Shift+Z` já funcionavam desde sempre, inclusive citados
+  nas notas da Fase 15) — faltava só exposição visual. Adicionados botões
+  "↶ Desfazer"/"↷ Refazer" na `Toolbar` (`editor.chain().undo()/redo()`,
+  desabilitados via `editor.can().undo()/.redo()`); sem dependência nova,
+  sem mudança de backend, escopo por sessão (não persiste entre reloads —
+  complementar ao histórico de versões da Fase 17, que é o que sobrevive
+  a reload). FR-35 e Fase 21 registrados em `spec.md`/`plan.md`/`tasks.md`.
+  Verificado: `tsc --noEmit` limpo, 27 testes frontend passando (sem
+  regressão), build OK. Testado ao vivo via automação de navegador
+  (Playwright) contra `docker compose up` (Postgres local, não o Supabase
+  de produção do `.env`): botões desabilitados sem histórico; digitar duas
+  frases seguidas e clicar "Desfazer" reverte tudo (ProseMirror agrupa
+  digitação rápida num único passo — comportamento padrão da lib, não bug
+  daqui); "Refazer" reaplica corretamente; digitar com pausa entre ações
+  gera passos de desfazer separados (confirmado com `Ctrl+Z` revertendo só
+  a última frase, deixando as anteriores intactas); atalho de teclado
+  continua funcionando em paralelo aos botões. **Fase 21 completa.**

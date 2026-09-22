@@ -373,3 +373,26 @@ assets(id PK, user_id FK->users ON DELETE CASCADE,
 - **Permissão**: os handlers checam `canEditRef.current` antes de
   qualquer coisa — usuário `viewer` não consegue colar/soltar (mesma
   regra que já esconde a toolbar e desliga `editable` no TipTap pra ele).
+
+## Desfazer e refazer no editor (Fase 21)
+
+- **Sem dependência nova**: `StarterKit` já inclui a extensão `History`
+  do ProseMirror por padrão (não estava desabilitada em
+  `extensions.ts`), com atalhos `Mod-z` (desfazer) e `Mod-y`/`Mod-Shift-z`
+  (refazer) já funcionando — é o que a nota da Fase 15 (T15/FR-24) já
+  usava para reverter um "mover" por engano. O que faltava era só
+  exposição visual (descoberta) na toolbar.
+- **Botões na `Toolbar`**: `editor.chain().focus().undo().run()` /
+  `.redo().run()`, desabilitados via `!editor.can().undo()` /
+  `!editor.can().redo()`. Como `useEditor` já re-renderiza a árvore a
+  cada transação (mesmo mecanismo que mantém `editor.isActive(...)`
+  atualizado nos outros botões), o estado habilitado/desabilitado
+  acompanha o histórico sem lógica extra.
+- **Escopo por sessão**: o histórico do ProseMirror vive em memória do
+  editor, não persiste em `content_json` nem sobrevive a um reload —
+  diferente do histórico de versões (Fase 17), que é a ferramenta pra
+  recuperar conteúdo entre sessões. As duas coexistem sem conflito: uma
+  é "desfazer a última digitada", a outra é "voltar a um estado salvo de
+  minutos/horas atrás".
+- **Permissão**: botões só aparecem quando `canEdit` (mesma condição que
+  já esconde a `Toolbar` inteira para `viewer`) — nada novo aqui.

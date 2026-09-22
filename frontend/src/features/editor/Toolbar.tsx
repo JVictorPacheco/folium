@@ -53,6 +53,25 @@ export default function Toolbar({ editor }: { editor: Editor }) {
 
   return (
     <div className="toolbar">
+      <button
+        className="toolbar-btn"
+        onClick={() => editor.chain().focus().undo().run()}
+        disabled={!editor.can().undo()}
+        title="Desfazer (Ctrl+Z)"
+      >
+        ↶ Desfazer
+      </button>
+      <button
+        className="toolbar-btn"
+        onClick={() => editor.chain().focus().redo().run()}
+        disabled={!editor.can().redo()}
+        title="Refazer (Ctrl+Shift+Z)"
+      >
+        ↷ Refazer
+      </button>
+
+      <span className="separator" />
+
       <button className={cls(editor.isActive("bold"))} onClick={() => editor.chain().focus().toggleBold().run()} title="Negrito">
         B
       </button>
